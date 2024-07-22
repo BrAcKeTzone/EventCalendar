@@ -1,0 +1,242 @@
+const Event = require("../models/eventModel");
+const { checkUserPermission } = require("../middlewares/checkUserPermission");
+const { Op } = require("sequelize");
+const eventService = require("../services/eventService");
+require("dotenv").config();
+
+async function generateEventId() {
+  const currentYear = new Date().getFullYear().toString();
+  const latestEvent = await Event.findOne({
+    where: {
+      eventId: {
+        [Op.like]: `${currentYear}-%`,
+      },
+    },
+    order: [["createdAt", "DESC"]],
+  });
+
+  let newEventIdNumber = "0001";
+
+  if (latestEvent) {
+    const latestIdNumber = parseInt(latestEvent.eventId.split("-")[1], 10);
+    const nextIdNumber = latestIdNumber + 1;
+    newEventIdNumber = nextIdNumber.toString().padStart(4, "0");
+  }
+
+  return `${currentYear}-${newEventIdNumber}`;
+}
+
+async function addEvent(req, res) {
+  try {
+    const {
+      eventName,
+      eventHost,
+      eventSchedStart,
+      eventSchedEnd,
+      eventLocation,
+      eventDescription,
+      needRD,
+      needARD,
+      needLGMED,
+      needLGCDD,
+      needORD,
+      needFAD,
+      needPDMU,
+      needRICTU,
+      needLEGAL,
+      invitedEmails,
+      eventDate,
+      createdBy,
+      meetingLink,
+    } = req.body;
+
+    const eventId = await generateEventId();
+
+    const newEvent = await Event.create({
+      eventId,
+      eventName,
+      eventHost,
+      eventSchedStart,
+      eventSchedEnd,
+      eventLocation,
+      eventDescription,
+      needRD,
+      needARD,
+      needLGMED,
+      needLGCDD,
+      needORD,
+      needFAD,
+      needPDMU,
+      needRICTU,
+      needLEGAL,
+      invitedEmails,
+      eventDate,
+      createdBy,
+      meetingLink,
+    });
+
+    res.status(201).json({ newEvent });
+  } catch (error) {
+    console.error("Error during adding event:", error);
+    res.status(500).json({ error: "Adding event failed" });
+  }
+}
+
+async function editEvent(req, res) {
+  try {
+    const { eventId } = req.params;
+    const updatedData = req.body;
+
+    const event = await Event.findByPk(eventId);
+
+    if (!event) {
+      res.status(404).json({ error: "Event not found" });
+      return;
+    }
+
+    await event.update(updatedData);
+    if (Array.isArray(updatedData.invitedEmails)) {
+      updatedData.invitedEmails = JSON.stringify(updatedData.invitedEmails);
+    }
+
+    res.status(200).json({ event });
+  } catch (error) {
+    console.error("Error during event edit:", error);
+    res.status(500).json({ error: "Event edit failed" });
+  }
+}
+
+async function approveEvent(req, res) {
+  try {
+    const { eventId } = req.params;
+
+    const event = await Event.findByPk(eventId);
+
+    if (!event) {
+      res.status(404).json({ error: "Event not found" });
+      return;
+    }
+
+    await event.update({ isApproved: true });
+
+    // Send invitation emails to all invited users
+    const invitedEmails = JSON.parse(event.invitedEmails);
+    await eventService.sendInvitationEmail(invitedEmails, event);
+
+    res.status(200).json({ event });
+  } catch (error) {
+    console.error("Error during event edit:", error);
+    res.status(500).json({ error: "Event edit failed" });
+  }
+}
+
+async function declineEvent(req, res) {
+  try {
+    const { eventId } = req.params;
+    const { eventRemarks } = req.body;
+
+    const event = await Event.findByPk(eventId);
+
+    if (!event) {
+      res.status(404).json({ error: "Event not found" });
+      return;
+    }
+
+    await event.update({ eventRemarks });
+    event.invitedEmails = JSON.parse(event.invitedEmails);
+
+    res.status(200).json({ event });
+  } catch (error) {
+    console.error("Error during event decline:", error);
+    res.status(500).json({ error: "Event decline failed" });
+  }
+}
+
+async function deleteEvent(req, res) {
+  try {
+    const { eventId } = req.params;
+
+    const event = await Event.findByPk(eventId);
+
+    if (!event) {
+      res.status(404).json({ error: "Event not found" });
+      return;
+    }
+
+    await event.destroy();
+
+    res.status(204).send();
+  } catch (error) {
+    console.error("Error during event deletion:", error);
+    res.status(500).json({ error: "Event deletion failed" });
+  }
+}
+
+async function viewEvent(req, res) {
+  try {
+    const { eventId } = req.params;
+    const event = await Event.findByPk(eventId);
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+    event.dataValues.invitedEmails = JSON.parse(event.dataValues.invitedEmails);
+
+    event.dataValues.eventSched = `${event.eventSchedStart} to ${event.eventSchedEnd}`;
+    res.status(200).json({ event });
+  } catch (error) {
+    console.error("Error during viewing event:", error);
+    res.status(500).json({ error: "Viewing event failed" });
+  }
+}
+
+async function retrieveAllEvents(req, res) {
+  try {
+    const { filter } = req.query;
+    let events;
+    if (filter === "approved") {
+      events = await Event.findAll({
+        where: {
+          isApproved: true,
+          eventRemarks: null,
+        },
+      });
+    } else if (filter === "declined") {
+      events = await Event.findAll({
+        where: {
+          isApproved: false,
+          eventRemarks: {
+            [Op.ne]: null,
+          },
+        },
+      });
+    } else if (filter === "unapproved") {
+      events = await Event.findAll({
+        where: {
+          isApproved: false,
+          eventRemarks: null,
+        },
+      });
+    } else {
+      events = await Event.findAll();
+    }
+    events = events.map((event) => {
+      event.invitedEmails = JSON.parse(event.invitedEmails);
+      return event;
+    });
+
+    res.status(200).json({ events });
+  } catch (error) {
+    console.error("Error during retrieving all events:", error);
+    res.status(500).json({ error: "Retrieving all events failed" });
+  }
+}
+
+module.exports = {
+  addEvent,
+  editEvent,
+  approveEvent,
+  declineEvent,
+  deleteEvent,
+  viewEvent,
+  retrieveAllEvents,
+};

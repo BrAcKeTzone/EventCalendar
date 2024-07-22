@@ -1,0 +1,35 @@
+[
+    {
+        "id": 1001,
+        "name": "John Doe",
+        "profile": "./src/assets/images/images.png",
+        "email": "john.doe@example.com",
+        "dateOfBirth": "1990-01-01",
+        "jobPosition": "Developer",
+        "isApproved": true,
+        "isAdmin": true,
+        "password": "password123"
+    },
+    {
+        "id": 1002,
+        "name": "Jane Smith",
+        "profile": "./src/assets/images/images.png",
+        "email": "jane.smith@example.com",
+        "dateOfBirth": "1992-02-02",
+        "jobPosition": "Assistant Regional Director",
+        "isApproved": true,
+        "isAdmin": true,
+        "password": "password123"
+    },
+    {
+        "id": 1003,
+        "name": "Alice Johnson",
+        "profile": "./src/assets/images/images.png",
+        "email": "alice.johnson@example.com",
+        "dateOfBirth": "1985-03-03",
+        "jobPosition": "Regional Director",
+        "isApproved": false,
+        "isAdmin": false,
+        "password": "password123"
+    }
+]

@@ -1,0 +1,103 @@
+[
+    {
+        "eventId": "2024-0000",
+        "eventName": "Sample Event",
+        "eventSchedStart": "10:00",
+        "eventSchedEnd": "11:11",
+        "eventLocation": "Pagadian City Hall",
+        "eventDescription": "Sample event  description",
+        "eventSched": "10:00 to 11:00",
+        "invitedEmails": ["jpskiemaniwang@gmail.com", "bracketzone@gmail.com"],
+        "eventDate": "2024-06-08",
+        "isApproved": true,
+        "createdBy": "John Paul A Maniwang",
+        "createdAt": "2024-06-09T08:00:00Z"
+    },
+    {
+        "eventId": "2024-0002",
+        "eventName": "Sample Event 2",
+        "eventSchedStart": "10:59",
+        "eventSchedEnd": "11:59",
+        "eventLocation": "Pagadian City Hall",
+        "eventDescription": "Sample event 2 description",
+        "eventSched": "11:00 to 12:00",
+        "invitedEmails": ["jpskiemaniwang@gmail.com", "bracketzone@gmail.com"],
+        "eventDate": "2024-06-17",
+        "isApproved": true,
+        "createdBy": "John Paul A Maniwang",
+        "createdAt": "2024-06-10T08:00:00Z"
+    },
+    {
+        "eventId": "2024-0001",
+        "eventName": "Sample Event3",
+        "eventSchedStart": "10:59",
+        "eventSchedEnd": "11:59",
+        "eventLocation": "Pagadian City Hall",
+        "eventDescription": "Sample event description",
+        "eventSched": "10:00 to 11:00",
+        "invitedEmails": ["jpskiemaniwang@gmail.com", "bracketzone@gmail.com"],
+        "eventDate": "2024-06-18",
+        "isApproved": true,
+        "createdBy": "John Paul A Maniwang",
+        "createdAt": "2024-06-10T08:00:00Z"
+    },
+    {
+        "eventId": "2024-0002",
+        "eventName": "Tech Conference",
+        "eventSchedStart": "09:00",
+        "eventSchedEnd": "17:00",
+        "eventLocation": "Tech Park",
+        "eventDescription": "Annual technology conference",
+        "eventSched": "09:00 to 17:00",
+        "invitedEmails": ["techfan@example.com", "innovator@example.com"],
+        "eventDate": "2024-07-10",
+        "isApproved": false,
+        "createdBy": "Alice Johnson",
+        "createdAt": "2024-06-01T10:30:00Z"
+    },
+    {
+        "eventId": "2024-0003",
+        "eventName": "Music Festival",
+        "eventSchedStart": "15:00",
+        "eventSchedEnd": "22:00",
+        "eventLocation": "Central Park",
+        "eventDescription": "Live music performances",
+        "eventSched": "15:00 to 22:00",
+        "invitedEmails": ["musiclover@example.com", "concertgoer@example.com"],
+        "eventDate": "2024-08-15",
+        "isApproved": true,
+        "createdBy": "Jane Smith",
+        "createdAt": "2024-05-20T14:45:00Z"
+    },
+    {
+        "eventId": "2024-0004",
+        "eventName": "Community Cleanup",
+        "eventSchedStart": "08:00",
+        "eventSchedEnd": "12:00",
+        "eventLocation": "Downtown Area",
+        "eventDescription": "Join us for a community cleanup event",
+        "eventSched": "08:00 to 12:00",
+        "invitedEmails": [
+            "volunteer@example.com",
+            "communityhelper@example.com"
+        ],
+        "eventDate": "2024-09-05",
+        "isApproved": true,
+        "createdBy": "Bob Brown",
+        "createdAt": "2024-06-12T07:20:00Z"
+    },
+    {
+        "eventId": "2024-0005",
+        "eventName": "Charity Run",
+        "eventSchedStart": "06:00",
+        "eventSchedEnd": "11:00",
+        "eventLocation": "City Stadium",
+        "eventDescription": "5k and 10k charity run",
+        "eventSched": "06:00 to 11:00",
+        "invitedEmails": ["runner@example.com", "charitysupporter@example.com"],
+        "eventDate": "2024-10-20",
+        "isApproved": false,
+        "createdBy": "Charlie Green",
+        "createdAt": "2024-05-25T09:15:00Z"
+    }
+]

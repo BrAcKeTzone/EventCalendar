@@ -1,0 +1,12 @@
+{
+   
+    "id": 1001,
+    "name": "John Doe",
+     "profile": "./src/assets/images/images.png",
+    "email": "john.doe@example.com",
+    "dateOfBirth": "1990-01-01",
+    "jobPosition": "Developer",
+    "isApproved": true,
+    "isAdmin": true,
+    "password": "password123"
+}
