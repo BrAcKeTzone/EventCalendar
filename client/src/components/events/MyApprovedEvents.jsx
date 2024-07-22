@@ -122,6 +122,9 @@ const MyApprovedEvents = ({ profileData }) => {
             <th className="py-3 px-4 text-left text-gray-600 font-medium">
               Date
             </th>
+            <th className="py-3 px-4 text-left text-gray-600 font-medium">
+              Status
+            </th>
             <th className="py-3 px-4 text-center text-gray-600 font-medium">
               Actions
             </th>
@@ -144,6 +147,10 @@ const MyApprovedEvents = ({ profileData }) => {
                     day: "2-digit",
                   })}
                 </td>
+                <td className="py-3 px-4 border-b">
+                  {event.approvedEventStatus}
+                </td>
+
                 <td className="py-3 px-4 flex justify-center space-x-2 border-b">
                   <button
                     className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors duration-200"

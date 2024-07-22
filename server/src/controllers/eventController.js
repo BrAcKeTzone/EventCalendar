@@ -117,7 +117,7 @@ async function approveEvent(req, res) {
       return;
     }
 
-    await event.update({ isApproved: true });
+    await event.update({ isApproved: true, approvedEventStatus: "Scheduled" });
 
     // Send invitation emails to all invited users
     const invitedEmails = JSON.parse(event.invitedEmails);
@@ -127,6 +127,140 @@ async function approveEvent(req, res) {
   } catch (error) {
     console.error("Error during event edit:", error);
     res.status(500).json({ error: "Event edit failed" });
+  }
+}
+
+async function approveEvent(req, res) {
+  try {
+    const { eventId } = req.params;
+
+    const event = await Event.findByPk(eventId);
+
+    if (!event) {
+      res.status(404).json({ error: "Event not found" });
+      return;
+    }
+
+    await event.update({ isApproved: true, approvedEventStatus: "Scheduled" });
+
+    // Send invitation emails to all invited users
+    const invitedEmails = JSON.parse(event.invitedEmails);
+    await eventService.sendInvitationEmail(invitedEmails, event);
+
+    res.status(200).json({ event });
+  } catch (error) {
+    console.error("Error during event edit:", error);
+    res.status(500).json({ error: "Event edit failed" });
+  }
+}
+
+async function markEventInProgress(req, res) {
+  try {
+    const { eventId } = req.params;
+
+    const event = await Event.findByPk(eventId);
+
+    if (!event) {
+      res.status(404).json({ error: "Event not found" });
+      return;
+    }
+
+    if (event.isApproved && event.approvedEventStatus === "Scheduled") {
+      await event.update({ approvedEventStatus: "In Progress" });
+      event.invitedEmails = JSON.parse(event.invitedEmails);
+
+      res.status(200).json({ event });
+    } else {
+      res.status(400).json({ error: "Event cannot be marked as In Progress" });
+    }
+  } catch (error) {
+    console.error("Error during marking event in progress:", error);
+    res.status(500).json({ error: "Marking event in progress failed" });
+  }
+}
+
+async function markEventCompleted(req, res) {
+  try {
+    const { eventId } = req.params;
+
+    const event = await Event.findByPk(eventId);
+
+    if (!event) {
+      res.status(404).json({ error: "Event not found" });
+      return;
+    }
+
+    if (event.isApproved && event.approvedEventStatus === "In Progress") {
+      await event.update({ approvedEventStatus: "Completed" });
+      event.invitedEmails = JSON.parse(event.invitedEmails);
+
+      res.status(200).json({ event });
+    } else {
+      res.status(400).json({ error: "Event cannot be marked as Completed" });
+    }
+  } catch (error) {
+    console.error("Error during marking event as completed:", error);
+    res.status(500).json({ error: "Marking event as completed failed" });
+  }
+}
+
+async function markEventPostponed(req, res) {
+  try {
+    const { eventId } = req.params;
+    const { reasonPosponedCancelled } = req.body;
+
+    const event = await Event.findByPk(eventId);
+
+    if (!event) {
+      res.status(404).json({ error: "Event not found" });
+      return;
+    }
+
+    if (event.isApproved && event.approvedEventStatus === "Scheduled") {
+      await event.update({
+        approvedEventStatus: "Postponed",
+        reasonPosponedCancelled,
+      });
+      event.invitedEmails = JSON.parse(event.invitedEmails);
+
+      await eventService.sendInterruptionEmail(invitedEmails, event);
+      res.status(200).json({ event });
+    } else {
+      res.status(400).json({ error: "Event cannot be marked as postponed" });
+    }
+  } catch (error) {
+    console.error("Error during marking event as postponed:", error);
+    res.status(500).json({ error: "Marking event as postponed failed" });
+  }
+}
+
+async function markEventCancelled(req, res) {
+  try {
+    const { eventId } = req.params;
+    const { reasonPosponedCancelled } = req.body;
+
+    const event = await Event.findByPk(eventId);
+
+    if (!event) {
+      res.status(404).json({ error: "Event not found" });
+      return;
+    }
+
+    if (event.isApproved && event.approvedEventStatus === "Scheduled") {
+      await event.update({
+        approvedEventStatus: "Cancelled",
+        reasonPosponedCancelled,
+      });
+      event.invitedEmails = JSON.parse(event.invitedEmails);
+
+      await eventService.sendInterruptionEmail(invitedEmails, event);
+      res.status(200).json({ event });
+    } else {
+      res.status(400).json({ error: "Event cannot be marked as cancelled" });
+    }
+  } catch (error) {
+    console.error("Error during marking event as cancelled:", error);
+    res.status(500).json({ error: "Marking event as cancelled failed" });
   }
 }
 
@@ -235,6 +369,10 @@ module.exports = {
   addEvent,
   editEvent,
   approveEvent,
+  markEventInProgress,
+  markEventCompleted,
+  markEventPostponed,
+  markEventCancelled,
   declineEvent,
   deleteEvent,
   viewEvent,

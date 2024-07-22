@@ -1,5 +1,5 @@
 Scheduled - The event is approved and set to occur as planned.
 In Progress - The event is currently taking place.
 Completed - The event has successfully concluded as planned.
-Posponed - The event has been delayed to a later date due to unforeseen circumstances.
+Postponed - The event has been delayed to a later date due to unforeseen circumstances.
 Cancelled - The approved event will no longer take place due to unavoidable reasons.

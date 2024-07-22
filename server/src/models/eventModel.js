@@ -53,7 +53,7 @@ const Event = sequelize.define("Event", {
     defaultValue: false,
   },
   approvedEventStatus: {
-    type: DataTypes.TEXT,
+    type: DataTypes.STRING,
     allowNull: true,
     defaultValue: null,
   },
