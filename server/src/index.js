@@ -60,7 +60,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   sequelize
-    .sync({ alter: true }) // Use { force: true } or { alter: true } during development to drop and recreate tables
+    .sync({ alter: false }) // Use { force: true } or { alter: true } during development to drop and recreate tables
     .then(() => {
       console.log("Connected to the database");
     })

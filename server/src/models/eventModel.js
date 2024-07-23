@@ -35,7 +35,7 @@ const Event = sequelize.define("Event", {
     allowNull: true,
     defaultValue: null,
   },
-  reasonPosponedCancelled: {
+  reasonPostponedCancelled: {
     type: DataTypes.TEXT,
     allowNull: true,
     defaultValue: null,

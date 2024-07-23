@@ -148,12 +148,29 @@ const sendInterruptionEmail = async (emails, event) => {
               font-size: 12px;
               color: #777;
             }
+            .eventStatus {
+              background-color: #e0f7fa;
+              padding: 15px;
+              border-left: 6px solid #00796b;
+              margin-bottom: 20px;
+              border-radius: 4px;
+            }
+            .eventStatus h2 {
+              margin: 0;
+              font-size: 18px;
+              color: #00796b;
+            }
+            .eventStatus h3 {
+              margin: 5px 0 0 0;
+              font-size: 16px;
+              color: #004d40;
+            }
           </style>
         </head>
         <body>
-          <div class="container">
-            <h2> Status: ${event.approvedEventStatus}</h2>
-            <h3> Reason: ${event.reasonPosponedCancelled}</h3>
+          <div class="eventStatus">
+            <h2>Status: ${event.approvedEventStatus}</h2>
+            <h3>Reason: ${event.reasonPostponedCancelled}</h3>
           </div>
           <div class="container">
             <div class="header">
@@ -171,6 +188,7 @@ const sendInterruptionEmail = async (emails, event) => {
           </div>
         </body>
         </html>
+
       `,
       attachments: [
         {

@@ -95,9 +95,6 @@ async function editEvent(req, res) {
     }
 
     await event.update(updatedData);
-    if (Array.isArray(updatedData.invitedEmails)) {
-      updatedData.invitedEmails = JSON.stringify(updatedData.invitedEmails);
-    }
 
     res.status(200).json({ event });
   } catch (error) {
@@ -125,32 +122,8 @@ async function approveEvent(req, res) {
 
     res.status(200).json({ event });
   } catch (error) {
-    console.error("Error during event edit:", error);
-    res.status(500).json({ error: "Event edit failed" });
-  }
-}
-
-async function approveEvent(req, res) {
-  try {
-    const { eventId } = req.params;
-
-    const event = await Event.findByPk(eventId);
-
-    if (!event) {
-      res.status(404).json({ error: "Event not found" });
-      return;
-    }
-
-    await event.update({ isApproved: true, approvedEventStatus: "Scheduled" });
-
-    // Send invitation emails to all invited users
-    const invitedEmails = JSON.parse(event.invitedEmails);
-    await eventService.sendInvitationEmail(invitedEmails, event);
-
-    res.status(200).json({ event });
-  } catch (error) {
-    console.error("Error during event edit:", error);
-    res.status(500).json({ error: "Event edit failed" });
+    console.error("Error during event approval:", error);
+    res.status(500).json({ error: "Event approval failed" });
   }
 }
 
@@ -207,7 +180,7 @@ async function markEventCompleted(req, res) {
 async function markEventPostponed(req, res) {
   try {
     const { eventId } = req.params;
-    const { reasonPosponedCancelled } = req.body;
+    const { reasonPostponedCancelled } = req.body;
 
     const event = await Event.findByPk(eventId);
 
@@ -219,11 +192,11 @@ async function markEventPostponed(req, res) {
     if (event.isApproved && event.approvedEventStatus === "Scheduled") {
       await event.update({
         approvedEventStatus: "Postponed",
-        reasonPosponedCancelled,
+        reasonPostponedCancelled: reasonPostponedCancelled,
       });
       event.invitedEmails = JSON.parse(event.invitedEmails);
 
-      await eventService.sendInterruptionEmail(invitedEmails, event);
+      await eventService.sendInterruptionEmail(event.invitedEmails, event);
       res.status(200).json({ event });
     } else {
       res.status(400).json({ error: "Event cannot be marked as postponed" });
@@ -237,7 +210,7 @@ async function markEventPostponed(req, res) {
 async function markEventCancelled(req, res) {
   try {
     const { eventId } = req.params;
-    const { reasonPosponedCancelled } = req.body;
+    const { reasonPostponedCancelled } = req.body;
 
     const event = await Event.findByPk(eventId);
 
@@ -249,11 +222,11 @@ async function markEventCancelled(req, res) {
     if (event.isApproved && event.approvedEventStatus === "Scheduled") {
       await event.update({
         approvedEventStatus: "Cancelled",
-        reasonPosponedCancelled,
+        reasonPostponedCancelled: reasonPostponedCancelled,
       });
       event.invitedEmails = JSON.parse(event.invitedEmails);
 
-      await eventService.sendInterruptionEmail(invitedEmails, event);
+      await eventService.sendInterruptionEmail(event.invitedEmails, event);
       res.status(200).json({ event });
     } else {
       res.status(400).json({ error: "Event cannot be marked as cancelled" });
@@ -350,11 +323,51 @@ async function retrieveAllEvents(req, res) {
           eventRemarks: null,
         },
       });
+    } else if (filter === "scheduled") {
+      events = await Event.findAll({
+        where: {
+          isApproved: true,
+          approvedEventStatus: "Scheduled",
+        },
+      });
+    } else if (filter === "inProgress") {
+      events = await Event.findAll({
+        where: {
+          isApproved: true,
+          approvedEventStatus: "In Progress",
+        },
+      });
+    } else if (filter === "completed") {
+      events = await Event.findAll({
+        where: {
+          isApproved: true,
+          approvedEventStatus: "Completed",
+        },
+      });
+    } else if (filter === "postponed") {
+      events = await Event.findAll({
+        where: {
+          isApproved: true,
+          approvedEventStatus: "Postponed",
+        },
+      });
+    } else if (filter === "cancelled") {
+      events = await Event.findAll({
+        where: {
+          isApproved: true,
+          approvedEventStatus: "Cancelled",
+        },
+      });
     } else {
       events = await Event.findAll();
     }
     events = events.map((event) => {
-      event.invitedEmails = JSON.parse(event.invitedEmails);
+      try {
+        event.invitedEmails = JSON.parse(event.invitedEmails);
+      } catch (e) {
+        console.error("Error parsing invitedEmails:", e);
+        event.invitedEmails = [];
+      }
       return event;
     });
 
