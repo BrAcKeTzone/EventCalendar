@@ -131,9 +131,9 @@ const ApprovedEvents = () => {
         <thead>
           <tr>
             <th className="py-2">Event Name</th>
-            <th className="py-2">Location</th>
-            <th className="py-2">Time</th>
-            <th className="py-2">Date</th>
+            <th className="py-2 hidden sm:table-cell">Location</th>
+            <th className="py-2 hidden sm:table-cell">Time</th>
+            <th className="py-2 hidden sm:table-cell">Date</th>
             <th className="py-2">Host</th>
             <th className="py-2">Actions</th>
           </tr>
@@ -147,12 +147,14 @@ const ApprovedEvents = () => {
                 className="hover:bg-gray-100 cursor-pointer"
               >
                 <td className="py-2 text-center">{event.eventName}</td>
-                <td className="py-2 text-center">{event.eventLocation}</td>
-                <td className="py-2 text-center">
+                <td className="py-2 text-center hidden sm:table-cell">
+                  {event.eventLocation}
+                </td>
+                <td className="py-2 text-center hidden sm:table-cell">
                   {formatTime(event.eventSchedStart)} to{" "}
                   {formatTime(event.eventSchedEnd)}
                 </td>
-                <td className="py-2 text-center">
+                <td className="py-2 text-center hidden sm:table-cell">
                   {new Date(event.eventDate).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "2-digit",
