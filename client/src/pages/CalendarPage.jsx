@@ -13,14 +13,14 @@ const CalendarPage = () => {
     try {
       const response = await api.get(`/event/retrieve?filter=approved`);
       setEvents(response.data.events);
-      events.forEach((event) => {
-        if (
-          event.approvedEventStatus === "Scheduled" &&
-          isToday(event.eventDate)
-        ) {
-          handleMarkInProgress(event.eventId);
-        }
-      });
+      // events.forEach((event) => {
+      //   if (
+      //     event.approvedEventStatus === "Scheduled" &&
+      //     isToday(event.eventDate)
+      //   ) {
+      //     handleMarkInProgress(event.eventId);
+      //   }
+      // });
     } catch (error) {
       console.error("Error fetching events:", error);
     } finally {
