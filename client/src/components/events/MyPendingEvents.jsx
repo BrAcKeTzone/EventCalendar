@@ -128,7 +128,7 @@ const MyPendingEvents = ({ profileData, users, eventHosts, hostColors }) => {
             <th className="py-3 px-4 text-left text-gray-600 font-medium">
               Event Name
             </th>
-            <th className="py-3 px-4 text-left text-gray-600 font-medium">
+            <th className="py-3 px-4 text-left text-gray-600 font-medium hidden sm:table-cell">
               Location
             </th>
             <th className="py-3 px-4 text-left text-gray-600 font-medium">
@@ -148,7 +148,9 @@ const MyPendingEvents = ({ profileData, users, eventHosts, hostColors }) => {
                 className="hover:bg-gray-100 cursor-pointer transition-colors duration-200"
               >
                 <td className="py-3 px-4 border-b">{event.eventName}</td>
-                <td className="py-3 px-4 border-b">{event.eventLocation}</td>
+                <td className="py-3 px-4 border-b hidden sm:table-cell">
+                  {event.eventLocation}
+                </td>
                 <td className="py-3 px-4 border-b">
                   {new Date(event.eventDate).toLocaleDateString("en-US", {
                     year: "numeric",
