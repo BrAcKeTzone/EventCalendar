@@ -121,6 +121,88 @@ const MyApprovedEvents = ({ profileData }) => {
     setDropdownOpen(dropdownOpen === eventId ? null : eventId);
   };
 
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "Scheduled":
+        return "hover:bg-blue-200";
+      case "In Progress":
+        return "hover:bg-yellow-200";
+      case "Completed":
+        return "hover:bg-green-200";
+      case "Postponed":
+        return "hover:bg-orange-200";
+      case "Cancelled":
+        return "hover:bg-red-200";
+      default:
+        return "";
+    }
+  };
+
+  const getSquareColor = (status) => {
+    switch (status) {
+      case "Scheduled":
+        return "bg-blue-500";
+      case "In Progress":
+        return "bg-yellow-500";
+      case "Completed":
+        return "bg-green-500";
+      case "Postponed":
+        return "bg-orange-500";
+      case "Cancelled":
+        return "bg-red-500";
+      default:
+        return "";
+    }
+  };
+
+  const handleMarkInProgress = async (eventId) => {
+    try {
+      const response = await api.put(`/event/inprogress/${eventId}`);
+      if (response.status === 200) {
+        alert("Event marked as In Progress!");
+        fetchEvents();
+      }
+    } catch (error) {
+      console.error("Error marking event in progress:", error);
+    }
+  };
+
+  const handleMarkComplete = async (eventId) => {
+    try {
+      const response = await api.put(`/event/complete/${eventId}`);
+      if (response.status === 200) {
+        alert("Event marked as Complete!");
+        fetchEvents();
+      }
+    } catch (error) {
+      console.error("Error marking event complete:", error);
+    }
+  };
+
+  const isToday = (dateString) => {
+    const today = new Date().toISOString().split("T")[0];
+    return dateString.startsWith(today);
+  };
+
+  const getFilterColor = (filter) => {
+    switch (filter) {
+      case "approved":
+        return "";
+      case "scheduled":
+        return "bg-blue-500";
+      case "inProgress":
+        return "bg-yellow-500";
+      case "completed":
+        return "bg-green-500";
+      case "postponed":
+        return "bg-orange-500";
+      case "cancelled":
+        return "bg-red-500";
+      default:
+        return "bg-gray-500";
+    }
+  };
+
   return (
     <div className="p-4">
       <div className="flex flex-col md:flex-row justify-between items-center mb-4 pb-4 border-b">
@@ -128,6 +210,9 @@ const MyApprovedEvents = ({ profileData }) => {
           <h2 className="text-2xl font-semibold">My Events</h2>
         </div>
         <div className="flex flex-col md:flex-row md:space-x-2 items-center w-full md:w-auto">
+          <div
+            className={`w-6 h-6 rounded ${getFilterColor(filter)} mb-2 md:mb-0`}
+          ></div>
           <select
             className="border p-2 rounded mb-2 md:mb-0 w-full md:w-auto"
             value={filter}
@@ -170,9 +255,7 @@ const MyApprovedEvents = ({ profileData }) => {
             <th className="py-3 px-4 text-left text-gray-600 font-medium">
               Date
             </th>
-            <th className="py-3 px-4 text-center text-gray-600 font-medium">
-              Actions
-            </th>
+            <th className=""></th>
           </tr>
         </thead>
         <tbody>
@@ -181,9 +264,18 @@ const MyApprovedEvents = ({ profileData }) => {
               <tr
                 key={event.eventId}
                 onClick={() => handleRowClick(event)}
-                className="hover:bg-gray-100 cursor-pointer transition-colors duration-200"
+                className={`cursor-pointer transition-colors duration-200 ${getStatusClass(
+                  event.approvedEventStatus
+                )}`}
               >
-                <td className="py-3 px-4 border-b">{event.eventName}</td>
+                <td className="py-3 px-4 border-b flex items-center space-x-2">
+                  <div
+                    className={`w-4 h-4 rounded ${getSquareColor(
+                      event.approvedEventStatus
+                    )}`}
+                  ></div>
+                  <span>{event.eventName}</span>
+                </td>
                 <td className="py-3 px-4 border-b">{event.eventLocation}</td>
                 <td className="py-3 px-4 border-b">
                   {new Date(event.eventDate).toLocaleDateString("en-US", {
@@ -192,7 +284,7 @@ const MyApprovedEvents = ({ profileData }) => {
                     day: "2-digit",
                   })}
                 </td>
-                <td className="py-3 px-4 flex justify-center space-x-2 border-b relative">
+                <td className="border-b relative">
                   <button
                     className="bg-gray-200 text-gray-600 px-2 py-1 rounded hover:bg-gray-300 transition-colors duration-200"
                     onClick={(e) => {
@@ -204,6 +296,34 @@ const MyApprovedEvents = ({ profileData }) => {
                   </button>
                   {dropdownOpen === event.eventId && (
                     <div className="absolute top-10 right-0 bg-white border shadow-lg rounded z-10">
+                      {isToday(event.eventDate) &&
+                        event.approvedEventStatus !== "In Progress" &&
+                        event.approvedEventStatus !== "Completed" &&
+                        event.approvedEventStatus !== "Postponed" &&
+                        event.approvedEventStatus !== "Cancelled" && (
+                          <button
+                            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMarkInProgress(event.eventId);
+                              toggleDropdown(null);
+                            }}
+                          >
+                            <span>In Progress</span>
+                          </button>
+                        )}
+                      {event.approvedEventStatus === "In Progress" && (
+                        <button
+                          className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMarkComplete(event.eventId);
+                            toggleDropdown(null);
+                          }}
+                        >
+                          Complete
+                        </button>
+                      )}
                       {event.approvedEventStatus === "Scheduled" && (
                         <>
                           <button
@@ -273,8 +393,11 @@ const MyApprovedEvents = ({ profileData }) => {
                 </label>
                 <Field
                   name="reasonPostponedCancelled"
-                  type="text"
+                  as="textarea"
+                  placeholder="Why is the event postponed or cancelled?"
                   className="mt-1 block w-full p-2 border border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  rows="4"
+                  cols="50"
                 />
                 <ErrorMessage
                   name="reasonPostponedCancelled"

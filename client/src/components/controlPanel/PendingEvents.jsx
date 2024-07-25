@@ -229,8 +229,11 @@ const PendingEvents = () => {
                 </label>
                 <Field
                   name="eventRemarks"
-                  type="text"
+                  as="textarea"
+                  placeholder="Why is the event declined?"
                   className="mt-1 block w-full p-2 border border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  rows="4"
+                  cols="50"
                 />
                 <ErrorMessage
                   name="eventRemarks"

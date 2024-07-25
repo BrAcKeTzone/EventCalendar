@@ -13,10 +13,37 @@ const CalendarPage = () => {
     try {
       const response = await api.get(`/event/retrieve?filter=approved`);
       setEvents(response.data.events);
+      events.forEach((event) => {
+        if (
+          event.approvedEventStatus === "Scheduled" &&
+          isToday(event.eventDate)
+        ) {
+          handleMarkInProgress(event.eventId);
+        }
+      });
     } catch (error) {
       console.error("Error fetching events:", error);
     } finally {
     }
+  };
+
+  console.log(events);
+
+  const handleMarkInProgress = async (eventId) => {
+    try {
+      const response = await api.put(`/event/inprogress/${eventId}`);
+      if (response.status === 200) {
+        console.log(`Event ${eventId} marked as In Progress!`);
+        fetchEvents();
+      }
+    } catch (error) {
+      console.error("Error marking event in progress:", error);
+    }
+  };
+
+  const isToday = (dateString) => {
+    const today = new Date().toISOString().split("T")[0];
+    return dateString.startsWith(today);
   };
 
   const fetchUsers = async () => {

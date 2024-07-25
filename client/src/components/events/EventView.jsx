@@ -20,6 +20,8 @@ const EventView = ({ event, isOpen, onRequestClose }) => {
     eventDate,
     createdBy,
     createdAt,
+    approvedEventStatus,
+    reasonPostponedCancelled,
   } = event;
 
   const formattedCreatedAt = dayjs(createdAt).format("MMMM D, YYYY");
@@ -59,6 +61,23 @@ const EventView = ({ event, isOpen, onRequestClose }) => {
     });
   };
 
+  const getStatusTextColor = (status) => {
+    switch (status) {
+      case "Scheduled":
+        return "text-blue-500";
+      case "In Progress":
+        return "text-yellow-500";
+      case "Completed":
+        return "text-green-500";
+      case "Postponed":
+        return "text-orange-500";
+      case "Cancelled":
+        return "text-red-500";
+      default:
+        return "";
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -66,8 +85,27 @@ const EventView = ({ event, isOpen, onRequestClose }) => {
       className="modal bg-white rounded-lg shadow-xl p-6 mx-auto my-10 w-3/4 md:w-2/3 max-h-screen overflow-auto relative"
       overlayClassName="overlay bg-gray-900 bg-opacity-50 fixed inset-0 flex items-center justify-center z-10"
     >
+      {approvedEventStatus && reasonPostponedCancelled && (
+        <div className="mb-4 p-4 border border-gray-300 rounded-lg">
+          <div className="flex flex-col items-center">
+            <div className="font-bold text-lg">Event Status</div>
+            <div
+              className={`text-xl font-semibold mt-2 ${getStatusTextColor(
+                approvedEventStatus
+              )}`}
+            >
+              {approvedEventStatus}
+            </div>
+            <div className="mt-2 text-center">
+              <div className="font-semibold">Reason:</div>
+              <div>{reasonPostponedCancelled}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div ref={eventViewRef}>
-        <div className="p-4 flex flex-col items-center text-center border-b border-blue-700">
+        <div className="p-4 flex flex-col items-center text-center border-b border-blue-700 pb-10">
           <img
             src={Header.logo}
             alt="Logo"
