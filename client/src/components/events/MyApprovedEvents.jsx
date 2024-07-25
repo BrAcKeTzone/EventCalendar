@@ -249,7 +249,7 @@ const MyApprovedEvents = ({ profileData }) => {
             <th className="py-3 px-4 text-left text-gray-600 font-medium">
               Event Name
             </th>
-            <th className="py-3 px-4 text-left text-gray-600 font-medium">
+            <th className="py-3 px-4 text-left text-gray-600 font-medium hidden sm:table-cell">
               Location
             </th>
             <th className="py-3 px-4 text-left text-gray-600 font-medium">
@@ -276,7 +276,9 @@ const MyApprovedEvents = ({ profileData }) => {
                   ></div>
                   <span>{event.eventName}</span>
                 </td>
-                <td className="py-3 px-4 border-b">{event.eventLocation}</td>
+                <td className="py-3 px-4 border-b hidden sm:table-cell">
+                  {event.eventLocation}
+                </td>
                 <td className="py-3 px-4 border-b">
                   {new Date(event.eventDate).toLocaleDateString("en-US", {
                     year: "numeric",
