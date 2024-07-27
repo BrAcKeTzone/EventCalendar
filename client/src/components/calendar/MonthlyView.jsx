@@ -54,11 +54,11 @@ const MonthlyView = ({ setCurrentView, users, eventsData }) => {
       extendedProps: event,
     }));
 
-  // useEffect(() => {
-  //   if (calendarRef.current) {
-  //     calendarRef.current.getApi().gotoDate(currentDate.toDate());
-  //   }
-  // }, [currentDate]);
+  useEffect(() => {
+    if (calendarRef.current) {
+      calendarRef.current.getApi().gotoDate(currentDate.toDate());
+    }
+  }, [currentDate]);
 
   const renderEventContent = (eventInfo) => {
     const { backgroundColor } = eventInfo.event;
