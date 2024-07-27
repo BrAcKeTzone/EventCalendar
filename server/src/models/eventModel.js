@@ -48,6 +48,10 @@ const Event = sequelize.define("Event", {
     type: DataTypes.DATE,
     allowNull: false,
   },
+  eventDateEnd: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
   isApproved: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,

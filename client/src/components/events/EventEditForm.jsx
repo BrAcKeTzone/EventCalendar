@@ -33,17 +33,19 @@ const EventEditForm = ({
   const validationSchema = Yup.object({
     eventName: Yup.string().required("Event Name is required"),
     eventHost: Yup.string().required("Event Host is required"),
+    eventDateEnd: Yup.string()
+      .required("Event Date End is required")
+      .test("is-after-start", "Invalid Date", function (value) {
+        const { eventDate } = this.parent;
+        return eventDate && value && eventDate <= value;
+      }),
     eventSchedStart: Yup.string().required("Start Time is required"),
     eventSchedEnd: Yup.string()
       .required("End Time is required")
-      .test(
-        "is-after-start",
-        "End time must be after start time",
-        function (value) {
-          const { eventSchedStart } = this.parent;
-          return eventSchedStart && value && eventSchedStart < value;
-        }
-      ),
+      .test("is-after-start", "Invalid Time", function (value) {
+        const { eventSchedStart } = this.parent;
+        return eventSchedStart && value && eventSchedStart < value;
+      }),
     eventLocation: Yup.string().required("Event Location is required"),
     eventDescription: Yup.string().required("Event Description is required"),
     meetingLink: Yup.string().url("Invalid URL"),
@@ -136,13 +138,13 @@ const EventEditForm = ({
       className="modal bg-white rounded-lg shadow-xl p-6 mx-auto my-10 md:w-3/4 max-h-screen overflow-auto"
       overlayClassName="overlay bg-gray-900 bg-opacity-50 fixed inset-0 flex items-center justify-center z-10"
     >
-      <h2 className="text-2xl font-semibold mb-4">
-        Edit Event on {dayjs(eventData.eventDate).format("MMMM D, YYYY")}
-      </h2>
       <Formik
         initialValues={{
           eventName: eventData.eventName || "",
           eventHost: eventData.eventHost || "",
+          eventDateEnd: eventData.eventDateEnd
+            ? dayjs(eventData.eventDateEnd).format("YYYY-MM-DD")
+            : "",
           eventSchedStart: eventData.eventSchedStart || "",
           eventSchedEnd: eventData.eventSchedEnd || "",
           eventLocation: eventData.eventLocation || "",
@@ -282,6 +284,33 @@ const EventEditForm = ({
 
           return (
             <Form className="space-y-4">
+              <div className="flex flex-col md:flex-row justify-between items-center">
+                <h2 className="text-2xl font-semibold mb-4 flex flex-col text-center md:text-left">
+                  <span> Edit Event on</span>
+                  <span>
+                    {dayjs(eventData.eventDate).format("MMMM D, YYYY")}
+                  </span>
+                </h2>
+                <div className="flex items-center justify-center mb-5 md:mb-0">
+                  -- until --
+                </div>
+                <div className="mb-4 md:mb-0">
+                  {/* <span>
+                    {dayjs(eventData.eventDateEnd).format("MMMM D, YYYY")}
+                  </span> */}
+                  <Field
+                    type="date"
+                    id="eventDateEnd"
+                    name="eventDateEnd"
+                    className="w-full border rounded p-2"
+                  />
+                  <ErrorMessage
+                    name="eventDateEnd"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+              </div>
               <div className="flex flex-col md:flex-row">
                 <div className="mb-4 md:flex-1">
                   <Field

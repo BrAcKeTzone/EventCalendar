@@ -19,6 +19,7 @@ const EventView = ({ event, isOpen, onRequestClose }) => {
     eventDescription,
     invitedEmails,
     eventDate,
+    eventDateEnd,
     createdBy,
     createdAt,
     approvedEventStatus,
@@ -90,7 +91,7 @@ const EventView = ({ event, isOpen, onRequestClose }) => {
           </button>
         </div>
 
-        {approvedEventStatus && reasonPostponedCancelled && (
+        {approvedEventStatus && (
           <div className="mb-4 p-4 border border-gray-300 rounded-lg">
             <div className="flex flex-col items-center">
               <div className="font-bold text-lg">Event Status</div>
@@ -101,10 +102,12 @@ const EventView = ({ event, isOpen, onRequestClose }) => {
               >
                 {approvedEventStatus}
               </div>
-              <div className="mt-2 text-center">
-                <div className="font-semibold">Reason:</div>
-                <div>{reasonPostponedCancelled}</div>
-              </div>
+              {reasonPostponedCancelled && (
+                <div className="mt-2 text-center">
+                  <div className="font-semibold">Reason:</div>
+                  <div>{reasonPostponedCancelled}</div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -140,9 +143,15 @@ const EventView = ({ event, isOpen, onRequestClose }) => {
             <div>
               <div className="font-bold">SUBJECT:</div>
               <div>
-                {eventName}, {dayjs(eventDate).format("MMMM D, YYYY")} -{" "}
-                {formatTime(event.eventSchedStart)} to{" "}
-                {formatTime(event.eventSchedEnd)}
+                {eventName}, {dayjs(eventDate).format("MMMM D, YYYY")}
+                {eventDate !== eventDateEnd &&
+                  ` - ${dayjs(eventDateEnd).format("MMMM D, YYYY")}`}
+                <span>
+                  {" [ "}
+                  {formatTime(event.eventSchedStart)} to{" "}
+                  {formatTime(event.eventSchedEnd)}
+                  {" ] "}
+                </span>
               </div>
             </div>
             <hr className="border-t-2 border-gray-500" />

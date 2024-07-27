@@ -27,8 +27,6 @@ const CalendarPage = () => {
     }
   };
 
-  console.log(events);
-
   const handleMarkInProgress = async (eventId) => {
     try {
       const response = await api.put(`/event/inprogress/${eventId}`);

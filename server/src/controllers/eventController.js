@@ -46,6 +46,7 @@ async function addEvent(req, res) {
       needLEGAL,
       invitedEmails,
       eventDate,
+      eventDateEnd,
       createdBy,
       meetingLink,
     } = req.body;
@@ -71,6 +72,7 @@ async function addEvent(req, res) {
       needLEGAL,
       invitedEmails,
       eventDate,
+      eventDateEnd,
       createdBy,
       meetingLink,
     });
