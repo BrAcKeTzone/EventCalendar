@@ -49,16 +49,16 @@ const MonthlyView = ({ setCurrentView, users, eventsData }) => {
     .map((event) => ({
       title: event.eventName,
       start: `${event.eventDate.split("T")[0]}T${event.eventSchedStart}`,
-      end: `${event.eventDate.split("T")[0]}T${event.eventSchedEnd}`,
+      end: `${event.eventDateEnd.split("T")[0]}T${event.eventSchedEnd}`,
       color: hostColors[event.eventHost] || "gray",
       extendedProps: event,
     }));
 
-  useEffect(() => {
-    if (calendarRef.current) {
-      calendarRef.current.getApi().gotoDate(currentDate.toDate());
-    }
-  }, [currentDate]);
+  // useEffect(() => {
+  //   if (calendarRef.current) {
+  //     calendarRef.current.getApi().gotoDate(currentDate.toDate());
+  //   }
+  // }, [currentDate]);
 
   const renderEventContent = (eventInfo) => {
     const { backgroundColor } = eventInfo.event;
