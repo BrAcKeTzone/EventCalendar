@@ -84,7 +84,7 @@ const sendInvitationEmail = async (emails, event) => {
               <p>${event.description}</p>
               ${
                   event.meetingLink
-                      ? `<a href="${event.meetingLink}">Click here for the meeting link!</a>`
+                      ? `<a href="${event.meetingLink}">This is the attached link!</a>`
                       : ""
               }
             </div>
@@ -207,7 +207,7 @@ const sendInterruptionEmail = async (emails, event) => {
               <p>${event.description}</p>
               ${
                   event.meetingLink
-                      ? `<a href="${event.meetingLink}">Click here for the meeting link!</a>`
+                      ? `<a href="${event.meetingLink}">This is the attached link!</a>`
                       : ""
               }
             </div>
