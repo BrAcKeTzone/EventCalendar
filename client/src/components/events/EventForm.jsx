@@ -126,7 +126,6 @@ const EventForm = ({
         };
         try {
             setIsSubmitting(true);
-
             const response = await api.post("/event/add", eventData);
             if (response.status === 201) {
                 alert(
@@ -203,7 +202,10 @@ const EventForm = ({
                             .filter(
                                 user =>
                                     user.assignedOffice ===
-                                    "Local Government Monitoring and Evaluation Division"
+                                        "Local Government Monitoring and Evaluation Division" &&
+                                    user.jobPosition !== "Regional Director" &&
+                                    user.jobPosition !==
+                                        "Assistant Regional Director"
                             )
                             .map(user => ({
                                 email: user.email,
@@ -213,7 +215,10 @@ const EventForm = ({
                             .filter(
                                 user =>
                                     user.assignedOffice ===
-                                    "Local Government Capacity Development Division"
+                                        "Local Government Capacity Development Division" &&
+                                    user.jobPosition !== "Regional Director" &&
+                                    user.jobPosition !==
+                                        "Assistant Regional Director"
                             )
                             .map(user => ({
                                 email: user.email,
@@ -223,7 +228,10 @@ const EventForm = ({
                             .filter(
                                 user =>
                                     user.assignedOffice ===
-                                    "Office of the Regional Director"
+                                        "Office of the Regional Director" &&
+                                    user.jobPosition !== "Regional Director" &&
+                                    user.jobPosition !==
+                                        "Assistant Regional Director"
                             )
                             .map(user => ({
                                 email: user.email,
@@ -233,7 +241,10 @@ const EventForm = ({
                             .filter(
                                 user =>
                                     user.assignedOffice ===
-                                    "Finance and Administrative Division"
+                                        "Finance and Administrative Division" &&
+                                    user.jobPosition !== "Regional Director" &&
+                                    user.jobPosition !==
+                                        "Assistant Regional Director"
                             )
                             .map(user => ({
                                 email: user.email,
@@ -243,7 +254,10 @@ const EventForm = ({
                             .filter(
                                 user =>
                                     user.assignedOffice ===
-                                    "Project Development Management Unit"
+                                        "Project Development Management Unit" &&
+                                    user.jobPosition !== "Regional Director" &&
+                                    user.jobPosition !==
+                                        "Assistant Regional Director"
                             )
                             .map(user => ({
                                 email: user.email,
@@ -253,7 +267,10 @@ const EventForm = ({
                             .filter(
                                 user =>
                                     user.assignedOffice ===
-                                    "Regional Information and Communication Technology Unit"
+                                        "Regional Information and Communication Technology Unit" &&
+                                    user.jobPosition !== "Regional Director" &&
+                                    user.jobPosition !==
+                                        "Assistant Regional Director"
                             )
                             .map(user => ({
                                 email: user.email,
@@ -261,7 +278,11 @@ const EventForm = ({
                             }));
                         const legalEmails = users
                             .filter(
-                                user => user.assignedOffice === "Legal Unit"
+                                user =>
+                                    user.assignedOffice === "Legal Unit" &&
+                                    user.jobPosition !== "Regional Director" &&
+                                    user.jobPosition !==
+                                        "Assistant Regional Director"
                             )
                             .map(user => ({
                                 email: user.email,
@@ -402,8 +423,6 @@ const EventForm = ({
                         values.needLEGAL
                     ]);
 
-                    console.log(invitedEmails);
-
                     return (
                         <Form className="space-y-4">
                             <div className="flex flex-col md:flex-row justify-between items-center">
@@ -529,7 +548,7 @@ const EventForm = ({
                                 <Field
                                     type="text"
                                     name="meetingLink"
-                                    placeholder="Place the Google Meet or Zoom link here..."
+                                    placeholder="(Optional) Place the attached link here..."
                                     className="w-full p-2 border rounded"
                                 />
                                 <ErrorMessage

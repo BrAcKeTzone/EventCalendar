@@ -199,37 +199,67 @@ const EventEditForm = ({
                             .map(user => user.email);
                         const lgmedEmails = users
                             .filter(
-                                user => user.jobPosition === "placeholder LGMED"
+                                user =>
+                                    user.assignedOffice ===
+                                        "Local Government Monitoring and Evaluation Division" &&
+                                    user.jobPosition !== "Regional Director" &&
+                                    user.jobPosition !==
+                                        "Assistant Regional Director"
                             )
                             .map(user => user.email);
                         const lgcddEmails = users
                             .filter(
-                                user => user.jobPosition === "placeholder LGCDD"
+                                user =>
+                                    user.assignedOffice ===
+                                        "Local Government Capacity Development Division" &&
+                                    user.jobPosition !== "Regional Director" &&
+                                    user.jobPosition !==
+                                        "Assistant Regional Director"
                             )
                             .map(user => user.email);
                         const ordEmails = users
                             .filter(
-                                user => user.jobPosition === "placeholder ORD"
+                                user =>
+                                    user.assignedOffice ===
+                                        "Office of the Regional Director" &&
+                                    user.jobPosition !== "Regional Director" &&
+                                    user.jobPosition !==
+                                        "Assistant Regional Director"
                             )
                             .map(user => user.email);
                         const fadEmails = users
                             .filter(
-                                user => user.jobPosition === "placeholder FAD"
+                                user => user.assignedOffice ===
+                                        "Finance and Administrative Division" &&
+                                    user.jobPosition !== "Regional Director" &&
+                                    user.jobPosition !==
+                                        "Assistant Regional Director"
                             )
                             .map(user => user.email);
                         const pdmuEmails = users
                             .filter(
-                                user => user.jobPosition === "placeholder PDMU"
+                                user =>  user.assignedOffice ===
+                                        "Project Development Management Unit" &&
+                                    user.jobPosition !== "Regional Director" &&
+                                    user.jobPosition !==
+                                        "Assistant Regional Director"
                             )
                             .map(user => user.email);
                         const rictuEmails = users
                             .filter(
-                                user => user.jobPosition === "placeholder RICTU"
+                                user => user.assignedOffice ===
+                                        "Regional Information and Communication Technology Unit" &&
+                                    user.jobPosition !== "Regional Director" &&
+                                    user.jobPosition !==
+                                        "Assistant Regional Director"
                             )
                             .map(user => user.email);
                         const legalEmails = users
                             .filter(
-                                user => user.jobPosition === "placeholder LEGAL"
+                                user => user.assignedOffice === "Legal Unit" &&
+                                    user.jobPosition !== "Regional Director" &&
+                                    user.jobPosition !==
+                                        "Assistant Regional Director"
                             )
                             .map(user => user.email);
 
@@ -467,7 +497,7 @@ const EventEditForm = ({
                                 <Field
                                     type="url"
                                     name="meetingLink"
-                                    placeholder="Place the Google Meet or Zoom link here..."
+                                    placeholder="(Optional) Place the attached link here..."
                                     className="w-full p-2 border rounded"
                                 />
                                 <ErrorMessage
