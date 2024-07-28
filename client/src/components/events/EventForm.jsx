@@ -9,575 +9,669 @@ import api from "../../api";
 Modal.setAppElement("#root");
 
 const EventForm = ({
-  isOpen,
-  onRequestClose,
-  selectedDate,
-  users,
-  events,
-  eventHosts,
-  hostColors,
+    isOpen,
+    onRequestClose,
+    selectedDate,
+    users,
+    events,
+    eventHosts,
+    hostColors
 }) => {
-  const Id = Cookies.get("SESSION_ID");
-  const [invitedEmails, setInvitedEmails] = useState([]);
-  const [emailInput, setEmailInput] = useState("");
+    const Id = Cookies.get("SESSION_ID");
+    const [invitedEmails, setInvitedEmails] = useState([]);
+    const [emailInput, setEmailInput] = useState("");
+    console.log(users);
 
-  const validationSchema = Yup.object({
-    eventName: Yup.string().required("Event Name is required"),
-    eventHost: Yup.string().required("Event Host is required"),
-    eventDateEnd: Yup.string()
-      .required("Event Date End is required")
-      .test("is-after-start", "Invalid Date", function (value) {
-        const { eventDate } = this.parent;
-        return eventDate && value && eventDate <= value;
-      }),
-    eventSchedStart: Yup.string().required("Start Time is required"),
-    eventSchedEnd: Yup.string()
-      .required("End Time is required")
-      .test("is-after-start", "Invalid Time", function (value) {
-        const { eventSchedStart } = this.parent;
-        return eventSchedStart && value && eventSchedStart < value;
-      }),
-    eventLocation: Yup.string().required("Event Location is required"),
-    eventDescription: Yup.string().required("Event Description is required"),
-    meetingLink: Yup.string().url("Invalid URL"),
-  });
-
-  const handleAddEmail = () => {
-    if (
-      emailInput &&
-      !invitedEmails.some((emailObj) => emailObj.email === emailInput)
-    ) {
-      setInvitedEmails([
-        ...invitedEmails,
-        { email: emailInput, canRemove: true },
-      ]);
-      setEmailInput("");
-    }
-  };
-
-  const handleRemoveEmail = (emailToRemove) => {
-    setInvitedEmails(
-      invitedEmails.filter((emailObj) => emailObj.email !== emailToRemove)
-    );
-  };
-
-  const handleSave = async (values, { resetForm }) => {
-    if (selectedDate.isBefore(dayjs(), "day")) {
-      alert("Selected date must be at least 1 day after the current date.");
-      return;
-    }
-
-    // Find matching events on the selected date
-    const matchingEvents = events.filter((event) =>
-      dayjs(event.eventDate).isSame(selectedDate, "day")
-    );
-
-    // Check for time conflicts
-    const hasConflict = matchingEvents.some((event) => {
-      const existingStart = dayjs(
-        `${event.eventDate} ${event.eventSchedStart}`
-      );
-      const existingEnd = dayjs(`${event.eventDate} ${event.eventSchedEnd}`);
-      const newStart = dayjs(
-        `${selectedDate.format("YYYY-MM-DD")} ${values.eventSchedStart}`
-      );
-      const newEnd = dayjs(
-        `${selectedDate.format("YYYY-MM-DD")} ${values.eventSchedEnd}`
-      );
-
-      const timeConflict =
-        newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart);
-      const rdConflict =
-        (event.needRD || event.needARD) && (values.needRD || values.needARD);
-
-      return timeConflict || rdConflict;
+    const validationSchema = Yup.object({
+        eventName: Yup.string().required("Event Name is required"),
+        eventHost: Yup.string().required("Event Host is required"),
+        eventDateEnd: Yup.string()
+            .required("Event Date End is required")
+            .test("is-after-start", "Invalid Date", function (value) {
+                const { eventDate } = this.parent;
+                // console.log(eventDate);
+                // console.log(value);
+                // console.log(eventDate && value && eventDate <= value);
+                return eventDate && value && eventDate <= value;
+            }),
+        eventSchedStart: Yup.string().required("Start Time is required"),
+        eventSchedEnd: Yup.string()
+            .required("End Time is required")
+            .test("is-after-start", "Invalid Time", function (value) {
+                const { eventSchedStart } = this.parent;
+                return eventSchedStart && value && eventSchedStart < value;
+            }),
+        eventLocation: Yup.string().required("Event Location is required"),
+        eventDescription: Yup.string().required(
+            "Event Description is required"
+        ),
+        meetingLink: Yup.string().url("Invalid URL")
     });
 
-    if (hasConflict) {
-      alert("Event conflicts with existing event.");
-      return;
-    }
-
-    let creatorName = "";
-    if (Id) {
-      const sessionId = JSON.parse(Id);
-      const user = users.find((user) => user.id === sessionId);
-      if (user) {
-        creatorName = user.name;
-      }
-    }
-    const eventData = {
-      ...values,
-      invitedEmails: invitedEmails.map((emailObj) => emailObj.email),
-      eventDate: selectedDate.format("YYYY-MM-DD"),
-      createdBy: creatorName,
+    const handleAddEmail = () => {
+        if (
+            emailInput &&
+            !invitedEmails.some(emailObj => emailObj.email === emailInput)
+        ) {
+            setInvitedEmails([
+                ...invitedEmails,
+                { email: emailInput, canRemove: true }
+            ]);
+            setEmailInput("");
+        }
     };
-    try {
-      const response = await api.post("/event/add", eventData);
-      if (response.status === 201) {
-        alert(
-          "Event submitted successfully! Event waiting for admin approval!"
+
+    const handleRemoveEmail = emailToRemove => {
+        setInvitedEmails(
+            invitedEmails.filter(emailObj => emailObj.email !== emailToRemove)
         );
-        resetForm();
-        setEmailInput("");
-        setInvitedEmails([]);
-      }
-      onRequestClose();
-    } catch (error) {
-      console.error("Error during event submission:", error);
-    }
-  };
+    };
 
-  return (
-    <Modal
-      isOpen={isOpen}
-      onRequestClose={onRequestClose}
-      className="modal bg-white rounded-lg shadow-xl p-6 mx-auto my-10 md:w-3/4 max-h-screen overflow-auto"
-      overlayClassName="overlay bg-gray-900 bg-opacity-50 fixed inset-0 flex items-center justify-center z-10"
-    >
-      <Formik
-        initialValues={{
-          eventName: "",
-          eventHost: "",
-          eventDate: selectedDate ? selectedDate.format("YYYY-MM-DD") : "",
-          eventDateEnd: selectedDate ? selectedDate.format("YYYY-MM-DD") : "",
-          eventSchedStart: "",
-          eventSchedEnd: "",
-          eventLocation: "",
-          eventDescription: "",
-          meetingLink: "",
-          needRD: false,
-          needARD: false,
-          needLGMED: false,
-          needLGCDD: false,
-          needORD: false,
-          needFAD: false,
-          needPDMU: false,
-          needRICTU: false,
-          needLEGAL: false,
-        }}
-        validationSchema={validationSchema}
-        onSubmit={handleSave}
-      >
-        {({ values }) => {
-          useEffect(() => {
-            const rdEmails = users
-              .filter((user) => user.jobPosition === "Regional Director")
-              .map((user) => ({
-                email: user.email,
-                canRemove: false,
-              }));
-            const ardEmails = users
-              .filter(
-                (user) => user.jobPosition === "Assistant Regional Director"
-              )
-              .map((user) => ({
-                email: user.email,
-                canRemove: false,
-              }));
-            const lgmedEmails = users
-              .filter(
-                (user) =>
-                  user.assignedOffice ===
-                  "Local Government Monitoring and Evaluation Division"
-              )
-              .map((user) => ({
-                email: user.email,
-                canRemove: false,
-              }));
-            const lgcddEmails = users
-              .filter(
-                (user) =>
-                  user.assignedOffice ===
-                  "Local Government Capacity Development Division"
-              )
-              .map((user) => ({
-                email: user.email,
-                canRemove: false,
-              }));
-            const ordEmails = users
-              .filter(
-                (user) =>
-                  user.assignedOffice === "Office of the Regional Director"
-              )
-              .map((user) => ({
-                email: user.email,
-                canRemove: false,
-              }));
-            const fadEmails = users
-              .filter(
-                (user) =>
-                  user.assignedOffice === "Finance and Administrative Division"
-              )
-              .map((user) => ({
-                email: user.email,
-                canRemove: false,
-              }));
-            const pdmuEmails = users
-              .filter(
-                (user) =>
-                  user.assignedOffice === "Project Development Management Unit"
-              )
-              .map((user) => ({
-                email: user.email,
-                canRemove: false,
-              }));
-            const rictuEmails = users
-              .filter(
-                (user) =>
-                  user.assignedOffice ===
-                  "Regional Information and Communication Technology Unit"
-              )
-              .map((user) => ({
-                email: user.email,
-                canRemove: false,
-              }));
-            const legalEmails = users
-              .filter((user) => user.assignedOffice === "Legal Unit")
-              .map((user) => ({
-                email: user.email,
-                canRemove: false,
-              }));
+    const handleSave = async (values, { resetForm }) => {
+        if (selectedDate.isBefore(dayjs(), "day")) {
+            alert(
+                "Selected date must be at least 1 day after the current date."
+            );
+            return;
+        }
 
-            let newEmails = invitedEmails.filter(
-              (emailObj) => emailObj.canRemove
+        // Find matching events on the selected date
+        const matchingEvents = events.filter(event =>
+            dayjs(event.eventDate).isSame(selectedDate, "day")
+        );
+
+        // Check for time conflicts
+        const hasConflict = matchingEvents.some(event => {
+            const existingStart = dayjs(
+                `${event.eventDate} ${event.eventSchedStart}`
+            );
+            const existingEnd = dayjs(
+                `${event.eventDate} ${event.eventSchedEnd}`
+            );
+            const newStart = dayjs(
+                `${selectedDate.format("YYYY-MM-DD")} ${values.eventSchedStart}`
+            );
+            const newEnd = dayjs(
+                `${selectedDate.format("YYYY-MM-DD")} ${values.eventSchedEnd}`
             );
 
-            if (values.needRD) {
-              newEmails = [...new Set([...newEmails, ...rdEmails])];
-            } else {
-              newEmails = newEmails.filter(
-                (emailObj) =>
-                  !rdEmails.some((rd) => rd.email === emailObj.email)
-              );
+            const timeConflict =
+                newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart);
+            const rdConflict =
+                (event.needRD || event.needARD) &&
+                (values.needRD || values.needARD);
+
+            return timeConflict || rdConflict;
+        });
+
+        if (hasConflict) {
+            alert("Event conflicts with existing event.");
+            return;
+        }
+
+        let creatorName = "";
+        if (Id) {
+            const sessionId = JSON.parse(Id);
+            const user = users.find(user => user.id === sessionId);
+            if (user) {
+                creatorName = user.name;
             }
-
-            if (values.needARD) {
-              newEmails = [...new Set([...newEmails, ...ardEmails])];
-            } else {
-              newEmails = newEmails.filter(
-                (emailObj) =>
-                  !ardEmails.some((ard) => ard.email === emailObj.email)
-              );
+        }
+        const eventData = {
+            ...values,
+            invitedEmails: invitedEmails.map(emailObj => emailObj.email),
+            eventDate: selectedDate.format("YYYY-MM-DD"),
+            createdBy: creatorName
+        };
+        try {
+            const response = await api.post("/event/add", eventData);
+            if (response.status === 201) {
+                alert(
+                    "Event submitted successfully! Event waiting for admin approval!"
+                );
+                resetForm();
+                setEmailInput("");
+                setInvitedEmails([]);
             }
+            onRequestClose();
+        } catch (error) {
+            console.error("Error during event submission:", error);
+        }
+    };
 
-            if (values.needLGMED) {
-              newEmails = [...new Set([...newEmails, ...lgmedEmails])];
-            } else {
-              newEmails = newEmails.filter(
-                (emailObj) =>
-                  !lgmedEmails.some((lgmed) => lgmed.email === emailObj.email)
-              );
-            }
+    return (
+        <Modal
+            isOpen={isOpen}
+            onRequestClose={onRequestClose}
+            className="modal bg-white rounded-lg shadow-xl p-6 mx-auto my-10 md:w-3/4 max-h-screen overflow-auto"
+            overlayClassName="overlay bg-gray-900 bg-opacity-50 fixed inset-0 flex items-center justify-center z-10"
+        >
+            <Formik
+                initialValues={{
+                    eventName: "",
+                    eventHost: "",
+                    eventDate: selectedDate
+                        ? selectedDate.format("YYYY-MM-DD")
+                        : "",
+                    eventDateEnd: selectedDate
+                        ? selectedDate.format("YYYY-MM-DD")
+                        : "",
+                    eventSchedStart: "",
+                    eventSchedEnd: "",
+                    eventLocation: "",
+                    eventDescription: "",
+                    meetingLink: "",
+                    needRD: false,
+                    needARD: false,
+                    needLGMED: false,
+                    needLGCDD: false,
+                    needORD: false,
+                    needFAD: false,
+                    needPDMU: false,
+                    needRICTU: false,
+                    needLEGAL: false
+                }}
+                validationSchema={validationSchema}
+                onSubmit={handleSave}
+            >
+                {({ values }) => {
+                    useEffect(() => {
+                        const rdEmails = users
+                            .filter(
+                                user => user.jobPosition === "Regional Director"
+                            )
+                            .map(user => ({
+                                email: user.email,
+                                canRemove: false
+                            }));
+                        const ardEmails = users
+                            .filter(
+                                user =>
+                                    user.jobPosition ===
+                                    "Assistant Regional Director"
+                            )
+                            .map(user => ({
+                                email: user.email,
+                                canRemove: false
+                            }));
+                        const lgmedEmails = users
+                            .filter(
+                                user =>
+                                    user.assignedOffice ===
+                                    "Local Government Monitoring and Evaluation Division"
+                            )
+                            .map(user => ({
+                                email: user.email,
+                                canRemove: false
+                            }));
+                        const lgcddEmails = users
+                            .filter(
+                                user =>
+                                    user.assignedOffice ===
+                                    "Local Government Capacity Development Division"
+                            )
+                            .map(user => ({
+                                email: user.email,
+                                canRemove: false
+                            }));
+                        const ordEmails = users
+                            .filter(
+                                user =>
+                                    user.assignedOffice ===
+                                    "Office of the Regional Director"
+                            )
+                            .map(user => ({
+                                email: user.email,
+                                canRemove: false
+                            }));
+                        const fadEmails = users
+                            .filter(
+                                user =>
+                                    user.assignedOffice ===
+                                    "Finance and Administrative Division"
+                            )
+                            .map(user => ({
+                                email: user.email,
+                                canRemove: false
+                            }));
+                        const pdmuEmails = users
+                            .filter(
+                                user =>
+                                    user.assignedOffice ===
+                                    "Project Development Management Unit"
+                            )
+                            .map(user => ({
+                                email: user.email,
+                                canRemove: false
+                            }));
+                        const rictuEmails = users
+                            .filter(
+                                user =>
+                                    user.assignedOffice ===
+                                    "Regional Information and Communication Technology Unit"
+                            )
+                            .map(user => ({
+                                email: user.email,
+                                canRemove: false
+                            }));
+                        const legalEmails = users
+                            .filter(
+                                user => user.assignedOffice === "Legal Unit"
+                            )
+                            .map(user => ({
+                                email: user.email,
+                                canRemove: false
+                            }));
 
-            if (values.needLGCDD) {
-              newEmails = [...new Set([...newEmails, ...lgcddEmails])];
-            } else {
-              newEmails = newEmails.filter(
-                (emailObj) =>
-                  !lgcddEmails.some((lgcdd) => lgcdd.email === emailObj.email)
-              );
-            }
+                        let newEmails = invitedEmails.filter(
+                            emailObj => emailObj.canRemove
+                        );
 
-            if (values.needORD) {
-              newEmails = [...new Set([...newEmails, ...ordEmails])];
-            } else {
-              newEmails = newEmails.filter(
-                (emailObj) =>
-                  !ordEmails.some((ord) => ord.email === emailObj.email)
-              );
-            }
+                        if (values.needRD) {
+                            newEmails = [
+                                ...new Set([...newEmails, ...rdEmails])
+                            ];
+                        } else {
+                            newEmails = newEmails.filter(
+                                emailObj =>
+                                    !rdEmails.some(
+                                        rd => rd.email === emailObj.email
+                                    )
+                            );
+                        }
 
-            if (values.needFAD) {
-              newEmails = [...new Set([...newEmails, ...fadEmails])];
-            } else {
-              newEmails = newEmails.filter(
-                (emailObj) =>
-                  !fadEmails.some((fad) => fad.email === emailObj.email)
-              );
-            }
+                        if (values.needARD) {
+                            newEmails = [
+                                ...new Set([...newEmails, ...ardEmails])
+                            ];
+                        } else {
+                            newEmails = newEmails.filter(
+                                emailObj =>
+                                    !ardEmails.some(
+                                        ard => ard.email === emailObj.email
+                                    )
+                            );
+                        }
 
-            if (values.needPDMU) {
-              newEmails = [...new Set([...newEmails, ...pdmuEmails])];
-            } else {
-              newEmails = newEmails.filter(
-                (emailObj) =>
-                  !pdmuEmails.some((pdmu) => pdmu.email === emailObj.email)
-              );
-            }
+                        if (values.needLGMED) {
+                            newEmails = [
+                                ...new Set([...newEmails, ...lgmedEmails])
+                            ];
+                        } else {
+                            newEmails = newEmails.filter(
+                                emailObj =>
+                                    !lgmedEmails.some(
+                                        lgmed => lgmed.email === emailObj.email
+                                    )
+                            );
+                        }
 
-            if (values.needRICTU) {
-              newEmails = [...new Set([...newEmails, ...rictuEmails])];
-            } else {
-              newEmails = newEmails.filter(
-                (emailObj) =>
-                  !rictuEmails.some((rictu) => rictu.email === emailObj.email)
-              );
-            }
+                        if (values.needLGCDD) {
+                            newEmails = [
+                                ...new Set([...newEmails, ...lgcddEmails])
+                            ];
+                        } else {
+                            newEmails = newEmails.filter(
+                                emailObj =>
+                                    !lgcddEmails.some(
+                                        lgcdd => lgcdd.email === emailObj.email
+                                    )
+                            );
+                        }
 
-            if (values.needLEGAL) {
-              newEmails = [...new Set([...newEmails, ...legalEmails])];
-            } else {
-              newEmails = newEmails.filter(
-                (emailObj) =>
-                  !legalEmails.some((legal) => legal.email === emailObj.email)
-              );
-            }
+                        if (values.needORD) {
+                            newEmails = [
+                                ...new Set([...newEmails, ...ordEmails])
+                            ];
+                        } else {
+                            newEmails = newEmails.filter(
+                                emailObj =>
+                                    !ordEmails.some(
+                                        ord => ord.email === emailObj.email
+                                    )
+                            );
+                        }
 
-            setInvitedEmails(newEmails);
-          }, [
-            values.needRD,
-            values.needARD,
-            values.needLGMED,
-            values.needLGCDD,
-            values.needORD,
-            values.needFAD,
-            values.needPDMU,
-            values.needRICTU,
-            values.needLEGAL,
-          ]);
+                        if (values.needFAD) {
+                            newEmails = [
+                                ...new Set([...newEmails, ...fadEmails])
+                            ];
+                        } else {
+                            newEmails = newEmails.filter(
+                                emailObj =>
+                                    !fadEmails.some(
+                                        fad => fad.email === emailObj.email
+                                    )
+                            );
+                        }
 
-          return (
-            <Form className="space-y-4">
-              <div className="flex flex-col md:flex-row justify-between items-center">
-                <h2 className="text-2xl font-semibold mb-4">
-                  {selectedDate
-                    ? selectedDate.format("MMMM D, YYYY")
-                    : "Select a Date"}
-                </h2>
-                <div className="flex items-center justify-center mb-5 md:mb-0">
-                  -- until --
-                </div>
-                <div className="mb-4 md:mb-0">
-                  <Field
-                    type="date"
-                    id="eventDateEnd"
-                    name="eventDateEnd"
-                    className="w-full border rounded p-2"
-                  />
-                  <ErrorMessage
-                    name="eventDateEnd"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col md:flex-row">
-                <div className="mb-4 md:flex-1">
-                  <Field
-                    type="text"
-                    id="eventName"
-                    name="eventName"
-                    placeholder="Event Name"
-                    className="w-full border rounded p-2"
-                  />
-                  <ErrorMessage
-                    name="eventName"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
-                <div className="mb-4 md:flex-1 md:ml-4">
-                  <Field
-                    as="select"
-                    id="eventHost"
-                    name="eventHost"
-                    className="w-full border rounded p-2"
-                  >
-                    <option value="">Select Host</option>
-                    {eventHosts.map((host) => (
-                      <option
-                        key={host}
-                        value={host}
-                        style={{ backgroundColor: hostColors[host] }}
-                      >
-                        {host}
-                      </option>
-                    ))}
-                  </Field>
-                  <ErrorMessage
-                    name="eventHost"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
-              </div>
-              <div className="flex space-x-2">
-                <div className="w-full">
-                  <Field
-                    type="time"
-                    name="eventSchedStart"
-                    className="w-full p-2 border rounded"
-                  />
-                  <ErrorMessage
-                    name="eventSchedStart"
-                    component="div"
-                    className="text-red-500"
-                  />
-                </div>
+                        if (values.needPDMU) {
+                            newEmails = [
+                                ...new Set([...newEmails, ...pdmuEmails])
+                            ];
+                        } else {
+                            newEmails = newEmails.filter(
+                                emailObj =>
+                                    !pdmuEmails.some(
+                                        pdmu => pdmu.email === emailObj.email
+                                    )
+                            );
+                        }
 
-                <div className="w-full">
-                  <Field
-                    type="time"
-                    name="eventSchedEnd"
-                    className="w-full p-2 border rounded"
-                  />
-                  <ErrorMessage
-                    name="eventSchedEnd"
-                    component="div"
-                    className="text-red-500"
-                  />
-                </div>
-              </div>
-              <div>
-                <Field
-                  type="text"
-                  name="eventLocation"
-                  placeholder="Event Location"
-                  className="w-full p-2 border rounded"
-                />
-                <ErrorMessage
-                  name="eventLocation"
-                  component="div"
-                  className="text-red-500"
-                />
-              </div>
-              <div>
-                <Field
-                  as="textarea"
-                  name="eventDescription"
-                  placeholder="Event Description"
-                  className="w-full p-2 border rounded"
-                />
-                <ErrorMessage
-                  name="eventDescription"
-                  component="div"
-                  className="text-red-500"
-                />
-              </div>
-              <div>
-                <Field
-                  type="text"
-                  name="meetingLink"
-                  placeholder="Place the Google Meet or Zoom link here..."
-                  className="w-full p-2 border rounded"
-                />
-                <ErrorMessage
-                  name="meetingLink"
-                  component="div"
-                  className="text-red-500"
-                />
-              </div>
-              <div>
-                <label className="bold">Required Presence:</label>
-              </div>
-              <div className="pl-0 md:pl-5">
-                <div>
-                  <label>
-                    <Field type="checkbox" name="needRD" /> Regional Director
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    <Field type="checkbox" name="needARD" /> Assistant Regional
-                    Director
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    <Field type="checkbox" name="needLGMED" /> Local Government
-                    Monitoring and Evaluation Division
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    <Field type="checkbox" name="needLGCDD" /> Local Government
-                    Capacity Development Division
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    <Field type="checkbox" name="needORD" /> Office of the
-                    Regional Director
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    <Field type="checkbox" name="needFAD" /> Finance and
-                    Administrative Division
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    <Field type="checkbox" name="needPDMU" /> Project
-                    Development Management Unit
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    <Field type="checkbox" name="needRICTU" /> Regional
-                    Information and Communication Technology Unit
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    <Field type="checkbox" name="needLEGAL" /> Legal Unit
-                  </label>
-                </div>
-              </div>
-              <div className="flex space-x-2">
-                <input
-                  type="email"
-                  placeholder="Invitee Email"
-                  className="w-full p-2 border rounded"
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                  onClick={handleAddEmail}
-                >
-                  Add
-                </button>
-              </div>
-              <ul className="list-disc pl-5">
-                {invitedEmails.map((emailObj, index) => (
-                  <li key={index} className="flex justify-between items-center">
-                    {emailObj.email}
-                    {emailObj.canRemove && (
-                      <button
-                        type="button"
-                        className="text-red-500 hover:text-red-700 border border-black px-2"
-                        onClick={() => handleRemoveEmail(emailObj.email)}
-                      >
-                        x
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
-                  onClick={onRequestClose}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                >
-                  Save
-                </button>
-              </div>
-            </Form>
-          );
-        }}
-      </Formik>
-    </Modal>
-  );
+                        if (values.needRICTU) {
+                            newEmails = [
+                                ...new Set([...newEmails, ...rictuEmails])
+                            ];
+                        } else {
+                            newEmails = newEmails.filter(
+                                emailObj =>
+                                    !rictuEmails.some(
+                                        rictu => rictu.email === emailObj.email
+                                    )
+                            );
+                        }
+
+                        if (values.needLEGAL) {
+                            newEmails = [
+                                ...new Set([...newEmails, ...legalEmails])
+                            ];
+                        } else {
+                            newEmails = newEmails.filter(
+                                emailObj =>
+                                    !legalEmails.some(
+                                        legal => legal.email === emailObj.email
+                                    )
+                            );
+                        }
+
+                        setInvitedEmails(newEmails);
+                    }, [
+                        values.needRD,
+                        values.needARD,
+                        values.needLGMED,
+                        values.needLGCDD,
+                        values.needORD,
+                        values.needFAD,
+                        values.needPDMU,
+                        values.needRICTU,
+                        values.needLEGAL
+                    ]);
+
+                    return (
+                        <Form className="space-y-4">
+                            <div className="flex flex-col md:flex-row justify-between items-center">
+                                <h2 className="text-2xl font-semibold mb-4">
+                                    {selectedDate
+                                        ? selectedDate.format("MMMM D, YYYY")
+                                        : "Select a Date"}
+                                </h2>
+                                <div className="flex items-center justify-center mb-5 md:mb-0">
+                                    -- until --
+                                </div>
+                                <div className="mb-4 md:mb-0">
+                                    <Field
+                                        type="date"
+                                        id="eventDateEnd"
+                                        name="eventDateEnd"
+                                        className="w-full border rounded p-2"
+                                    />
+                                    <ErrorMessage
+                                        name="eventDateEnd"
+                                        component="div"
+                                        className="text-red-500 text-sm"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex flex-col md:flex-row">
+                                <div className="mb-4 md:flex-1">
+                                    <Field
+                                        type="text"
+                                        id="eventName"
+                                        name="eventName"
+                                        placeholder="Event Name"
+                                        className="w-full border rounded p-2"
+                                    />
+                                    <ErrorMessage
+                                        name="eventName"
+                                        component="div"
+                                        className="text-red-500 text-sm"
+                                    />
+                                </div>
+                                <div className="mb-4 md:flex-1 md:ml-4">
+                                    <Field
+                                        as="select"
+                                        id="eventHost"
+                                        name="eventHost"
+                                        className="w-full border rounded p-2"
+                                    >
+                                        <option value="">Select Host</option>
+                                        {eventHosts.map(host => (
+                                            <option
+                                                key={host}
+                                                value={host}
+                                                style={{
+                                                    backgroundColor:
+                                                        hostColors[host]
+                                                }}
+                                            >
+                                                {host}
+                                            </option>
+                                        ))}
+                                    </Field>
+                                    <ErrorMessage
+                                        name="eventHost"
+                                        component="div"
+                                        className="text-red-500 text-sm"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex space-x-2">
+                                <div className="w-full">
+                                    <Field
+                                        type="time"
+                                        name="eventSchedStart"
+                                        className="w-full p-2 border rounded"
+                                    />
+                                    <ErrorMessage
+                                        name="eventSchedStart"
+                                        component="div"
+                                        className="text-red-500"
+                                    />
+                                </div>
+
+                                <div className="w-full">
+                                    <Field
+                                        type="time"
+                                        name="eventSchedEnd"
+                                        className="w-full p-2 border rounded"
+                                    />
+                                    <ErrorMessage
+                                        name="eventSchedEnd"
+                                        component="div"
+                                        className="text-red-500"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <Field
+                                    type="text"
+                                    name="eventLocation"
+                                    placeholder="Event Location"
+                                    className="w-full p-2 border rounded"
+                                />
+                                <ErrorMessage
+                                    name="eventLocation"
+                                    component="div"
+                                    className="text-red-500"
+                                />
+                            </div>
+                            <div>
+                                <Field
+                                    as="textarea"
+                                    name="eventDescription"
+                                    placeholder="Event Description"
+                                    className="w-full p-2 border rounded"
+                                />
+                                <ErrorMessage
+                                    name="eventDescription"
+                                    component="div"
+                                    className="text-red-500"
+                                />
+                            </div>
+                            <div>
+                                <Field
+                                    type="text"
+                                    name="meetingLink"
+                                    placeholder="Place the Google Meet or Zoom link here..."
+                                    className="w-full p-2 border rounded"
+                                />
+                                <ErrorMessage
+                                    name="meetingLink"
+                                    component="div"
+                                    className="text-red-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="bold">
+                                    Required Presence:
+                                </label>
+                            </div>
+                            <div className="pl-0 md:pl-5">
+                                <div>
+                                    <label>
+                                        <Field type="checkbox" name="needRD" />{" "}
+                                        Regional Director
+                                    </label>
+                                </div>
+                                <div>
+                                    <label>
+                                        <Field type="checkbox" name="needARD" />{" "}
+                                        Assistant Regional Director
+                                    </label>
+                                </div>
+                                <div>
+                                    <label>
+                                        <Field
+                                            type="checkbox"
+                                            name="needLGMED"
+                                        />{" "}
+                                        Local Government Monitoring and
+                                        Evaluation Division
+                                    </label>
+                                </div>
+                                <div>
+                                    <label>
+                                        <Field
+                                            type="checkbox"
+                                            name="needLGCDD"
+                                        />{" "}
+                                        Local Government Capacity Development
+                                        Division
+                                    </label>
+                                </div>
+                                <div>
+                                    <label>
+                                        <Field type="checkbox" name="needORD" />{" "}
+                                        Office of the Regional Director
+                                    </label>
+                                </div>
+                                <div>
+                                    <label>
+                                        <Field type="checkbox" name="needFAD" />{" "}
+                                        Finance and Administrative Division
+                                    </label>
+                                </div>
+                                <div>
+                                    <label>
+                                        <Field
+                                            type="checkbox"
+                                            name="needPDMU"
+                                        />{" "}
+                                        Project Development Management Unit
+                                    </label>
+                                </div>
+                                <div>
+                                    <label>
+                                        <Field
+                                            type="checkbox"
+                                            name="needRICTU"
+                                        />{" "}
+                                        Regional Information and Communication
+                                        Technology Unit
+                                    </label>
+                                </div>
+                                <div>
+                                    <label>
+                                        <Field
+                                            type="checkbox"
+                                            name="needLEGAL"
+                                        />{" "}
+                                        Legal Unit
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="flex space-x-2">
+                                <input
+                                    type="email"
+                                    placeholder="Invitee Email"
+                                    className="w-full p-2 border rounded"
+                                    value={emailInput}
+                                    onChange={e =>
+                                        setEmailInput(e.target.value)
+                                    }
+                                />
+                                <button
+                                    type="button"
+                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                    onClick={handleAddEmail}
+                                >
+                                    Add
+                                </button>
+                            </div>
+                            <ul className="list-disc pl-5">
+                                {invitedEmails.map((emailObj, index) => (
+                                    <li
+                                        key={index}
+                                        className="flex justify-between items-center"
+                                    >
+                                        {emailObj.email}
+                                        {emailObj.canRemove && (
+                                            <button
+                                                type="button"
+                                                className="text-red-500 hover:text-red-700 border border-black px-2"
+                                                onClick={() =>
+                                                    handleRemoveEmail(
+                                                        emailObj.email
+                                                    )
+                                                }
+                                            >
+                                                x
+                                            </button>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                            <div className="flex justify-end space-x-2">
+                                <button
+                                    type="button"
+                                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+                                    onClick={onRequestClose}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        </Form>
+                    );
+                }}
+            </Formik>
+        </Modal>
+    );
 };
 
 export default EventForm;
