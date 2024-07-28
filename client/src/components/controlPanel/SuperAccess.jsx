@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowDown } from "react-icons/fa";
 import { MdOutlineContentPasteSearch } from "react-icons/md";
+import { FiRefreshCcw } from "react-icons/fi";
 import ProfileView from "./ProfileView";
 import api from "../../api.jsx";
 import "../../assets/styles/Loader.css";
@@ -92,7 +93,7 @@ const SuperAccess = ({ sessionId }) => {
                         className="border p-2 rounded"
                         placeholder="Search..."
                         value={searchTerm}
-                        onClick={() => fetchAdminUsers(true)}
+                        // onClick={() => fetchAdminUsers(true)}
                         onChange={e => setSearchTerm(e.target.value)}
                     />
                     <button
@@ -101,6 +102,12 @@ const SuperAccess = ({ sessionId }) => {
                     >
                         <MdOutlineContentPasteSearch />
                     </button>
+                    <button
+                                className="bg-gray-200 hover:bg-blue-500 hover:text-white px-4 py-2 rounded"
+                                onClick={() => fetchAdminUsers(true)}
+                            >
+                                <FiRefreshCcw />
+                            </button>
                 </div>
             </div>
             <table className="min-w-full bg-white">

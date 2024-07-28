@@ -17,7 +17,7 @@ const sendInvitationEmail = async (emails, event) => {
         const mailOptions = {
             from: "DILG Calendar Event Scheduling",
             to: email,
-            subject: `Invitation to Event: ${event.eventName}`,
+            subject: `Invitation to the Event: ${event.eventName}`,
             html: `
         <html>
         <head>
@@ -68,12 +68,25 @@ const sendInvitationEmail = async (emails, event) => {
               <h2>Republic of the Philippines<br>Department of the Interior and Local Government</h2>
             </div>
             <div class="content">
-              <p><strong>${event.createdBy}</strong> <span style="float:right;">${event.createdAt}</span></p>
+              <p><strong>${
+                  event.createdBy
+              }</strong> <span style="float:right;">${
+                  event.createdAt
+              }</span></p>
               <p><strong>Event No.</strong> ${event.eventId}</p>
               <p><strong>TO:</strong> ${event.invitedEmails}</p>
-              <p><strong>SUBJECT:</strong> ${event.eventName}, ${event.eventDate} - ${event.eventDateEnd} ${event.eventSchedStart} to ${event.eventSchedEnd}</p>
+              <p><strong>SUBJECT:</strong> ${event.eventName}, ${
+                  event.eventDate
+              } - ${event.eventDateEnd} ${event.eventSchedStart} to ${
+                  event.eventSchedEnd
+              }</p>
               <hr>
               <p>${event.description}</p>
+              ${
+                  event.meetingLink
+                      ? `<a href="${event.meetingLink}">Click here for the meeting link!</a>`
+                      : ""
+              }
             </div>
           </div>
         </body>
@@ -178,12 +191,25 @@ const sendInterruptionEmail = async (emails, event) => {
               <h2>Republic of the Philippines<br>Department of the Interior and Local Government</h2>
             </div>
             <div class="content">
-              <p><strong>${event.createdBy}</strong> <span style="float:right;">${event.createdAt}</span></p>
+              <p><strong>${
+                  event.createdBy
+              }</strong> <span style="float:right;">${
+                  event.createdAt
+              }</span></p>
               <p><strong>Event No.</strong> ${event.eventId}</p>
               <p><strong>TO:</strong> ${event.invitedEmails}</p>
-              <p><strong>SUBJECT:</strong> ${event.eventName}, ${event.eventDate} - ${event.eventDateEnd} ${event.eventSchedStart} to ${event.eventSchedEnd}</p>
+              <p><strong>SUBJECT:</strong> ${event.eventName}, ${
+                  event.eventDate
+              } - ${event.eventDateEnd} ${event.eventSchedStart} to ${
+                  event.eventSchedEnd
+              }</p>
               <hr>
               <p>${event.description}</p>
+              ${
+                  event.meetingLink
+                      ? `<a href="${event.meetingLink}">Click here for the meeting link!</a>`
+                      : ""
+              }
             </div>
           </div>
         </body>
