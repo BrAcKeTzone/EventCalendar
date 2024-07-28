@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import * as Yup from "yup";
 import dayjs from "dayjs";
 import api from "../../api";
+import "../../assets/styles/Loader.css";
 
 Modal.setAppElement("#root");
 
@@ -20,6 +21,7 @@ const EventForm = ({
     const Id = Cookies.get("SESSION_ID");
     const [invitedEmails, setInvitedEmails] = useState([]);
     const [emailInput, setEmailInput] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     console.log(users);
 
     const validationSchema = Yup.object({
@@ -124,6 +126,8 @@ const EventForm = ({
             createdBy: creatorName
         };
         try {
+            setIsSubmitting(true);
+
             const response = await api.post("/event/add", eventData);
             if (response.status === 201) {
                 alert(
@@ -136,6 +140,8 @@ const EventForm = ({
             onRequestClose();
         } catch (error) {
             console.error("Error during event submission:", error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -670,6 +676,11 @@ const EventForm = ({
                     );
                 }}
             </Formik>
+             {isSubmitting && (
+                <div className="fixed inset-0 flex justify-center items-center z-50 bg-white opacity-50">
+                    <div className="loader"></div>
+                </div>
+            )}
         </Modal>
     );
 };

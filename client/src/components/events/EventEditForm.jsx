@@ -3,6 +3,7 @@ import Modal from "react-modal";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import dayjs from "dayjs";
+import "../../assets/styles/Loader.css";
 
 Modal.setAppElement("#root");
 
@@ -21,6 +22,7 @@ const EventEditForm = ({
     );
     const [emailInput, setEmailInput] = useState("");
     const [manuallyAddedEmails, setManuallyAddedEmails] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (eventData) {
@@ -126,6 +128,7 @@ const EventEditForm = ({
         };
 
         try {
+            setIsSubmitting(true);
             const response = await api.put(
                 `/event/edit/${eventData.eventId}`,
                 updatedEventData
@@ -140,6 +143,8 @@ const EventEditForm = ({
             }
         } catch (error) {
             console.error("Error updating event:", error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -612,6 +617,11 @@ const EventEditForm = ({
                     );
                 }}
             </Formik>
+            {isSubmitting && (
+                <div className="fixed inset-0 flex justify-center items-center z-50 bg-white opacity-50">
+                    <div className="loader"></div>
+                </div>
+            )}
         </Modal>
     );
 };
