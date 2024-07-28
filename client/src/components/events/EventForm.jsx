@@ -22,7 +22,6 @@ const EventForm = ({
     const [invitedEmails, setInvitedEmails] = useState([]);
     const [emailInput, setEmailInput] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    console.log(users);
 
     const validationSchema = Yup.object({
         eventName: Yup.string().required("Event Name is required"),
@@ -403,6 +402,8 @@ const EventForm = ({
                         values.needLEGAL
                     ]);
 
+                    console.log(invitedEmails);
+
                     return (
                         <Form className="space-y-4">
                             <div className="flex flex-col md:flex-row justify-between items-center">
@@ -676,7 +677,7 @@ const EventForm = ({
                     );
                 }}
             </Formik>
-             {isSubmitting && (
+            {isSubmitting && (
                 <div className="fixed inset-0 flex justify-center items-center z-50 bg-white opacity-50">
                     <div className="loader"></div>
                 </div>
