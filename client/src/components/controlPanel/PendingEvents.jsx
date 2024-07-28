@@ -82,7 +82,6 @@ const PendingEvents = () => {
 
   const handleDecline = async (id, eventRemarks) => {
     setIsLoading(true);
-
     try {
       const response = await api.put(`/event/decline/${id}`, {
         eventRemarks,

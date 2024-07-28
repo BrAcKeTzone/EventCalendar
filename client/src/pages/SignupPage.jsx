@@ -463,6 +463,11 @@ const SignupPage = () => {
         isOpen={isModalOpen}
         onRequestClose={closeModal}
       />
+       {isSubmitting && (
+                <div className="fixed inset-0 flex justify-center items-center z-50 bg-white opacity-50">
+                    <div className="loader"></div>
+                </div>
+            )}
     </div>
   );
 };
