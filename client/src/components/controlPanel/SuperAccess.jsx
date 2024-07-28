@@ -79,8 +79,7 @@ const SuperAccess = ({ sessionId }) => {
           <div className="loader"></div>
         </div>
       )}
-      {!isLoading && (
-        <>
+     
             <div className="flex flex-col md:flex-row justify-between items-center mb-4">
                 <div className="flex flex-col md:flex-row items-center">
                     <h2 className="text-2xl font-semibold">Admin Users</h2>
@@ -147,8 +146,7 @@ const SuperAccess = ({ sessionId }) => {
                     onRequestClose={closeProfileModal}
                     profileData={selectedUser}
                 />
-            )}</>
-               )}
+            )}
         </div>
     );
 };

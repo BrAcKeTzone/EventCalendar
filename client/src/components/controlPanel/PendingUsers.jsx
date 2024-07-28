@@ -93,8 +93,7 @@ const PendingUsers = () => {
                     <div className="loader"></div>
                 </div>
             )}
-            {!isLoading && (
-                <>
+
                     <div className="flex flex-col md:flex-row justify-between items-center mb-4">
                         <div className="flex flex-col md:flex-row items-center">
                             <h2 className="text-2xl font-semibold">
@@ -182,8 +181,7 @@ const PendingUsers = () => {
                             profileData={selectedUser}
                         />
                     )}
-                </>
-            )}
+
         </div>
     );
 };
