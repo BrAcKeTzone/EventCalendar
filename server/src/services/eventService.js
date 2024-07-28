@@ -3,22 +3,22 @@ const path = require("path");
 require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
-  service: process.env.MAIL_SERVICE,
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-  },
+    service: process.env.MAIL_SERVICE,
+    auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS
+    }
 });
 
 const sendInvitationEmail = async (emails, event) => {
-  const logoPath = path.resolve(__dirname, "../../public/logo.png");
+    const logoPath = path.resolve(__dirname, "../../public/logo.png");
 
-  const mailPromises = emails.map((email) => {
-    const mailOptions = {
-      from: "DILG Calendar Event Scheduling",
-      to: email,
-      subject: `Invitation to Event: ${event.eventName}`,
-      html: `
+    const mailPromises = emails.map(email => {
+        const mailOptions = {
+            from: "DILG Calendar Event Scheduling",
+            to: email,
+            subject: `Invitation to Event: ${event.eventName}`,
+            html: `
         <html>
         <head>
           <style>
@@ -62,52 +62,52 @@ const sendInvitationEmail = async (emails, event) => {
           </style>
         </head>
         <body>
-          <div class="container">
+         <div class="container">
             <div class="header">
               <img src="cid:logo" alt="DILG Logo">
               <h2>Republic of the Philippines<br>Department of the Interior and Local Government</h2>
             </div>
             <div class="content">
-              <p><strong>John Paul Maniwang</strong> <span style="float:right;">July 2, 2024</span></p>
-              <p><strong>Event No.</strong> 2024-0006</p>
-              <p><strong>TO:</strong> jpskiemaniwang@gmail.com</p>
-              <p><strong>SUBJECT:</strong> Tech4Jobs, July 8, 2024 - 4:36 AM to 3:45 AM</p>
+              <p><strong>${event.createdBy}</strong> <span style="float:right;">${event.createdAt}</span></p>
+              <p><strong>Event No.</strong> ${event.eventId}</p>
+              <p><strong>TO:</strong> ${event.invitedEmails}</p>
+              <p><strong>SUBJECT:</strong> ${event.eventName}, ${event.eventDate} - ${event.eventDateEnd} ${event.eventSchedStart} to ${event.eventSchedEnd}</p>
               <hr>
-              <p>shrtjhzgs drt</p>
+              <p>${event.description}</p>
             </div>
           </div>
         </body>
         </html>
       `,
-      attachments: [
-        {
-          filename: "logo.png",
-          path: logoPath,
-          cid: "logo",
-        },
-      ],
-    };
-    return transporter.sendMail(mailOptions);
-  });
+            attachments: [
+                {
+                    filename: "logo.png",
+                    path: logoPath,
+                    cid: "logo"
+                }
+            ]
+        };
+        return transporter.sendMail(mailOptions);
+    });
 
-  try {
-    await Promise.all(mailPromises);
-    console.log("Invitation emails sent successfully.");
-  } catch (error) {
-    console.error("Error sending invitation emails:", error);
-    throw error;
-  }
+    try {
+        await Promise.all(mailPromises);
+        console.log("Invitation emails sent successfully.");
+    } catch (error) {
+        console.error("Error sending invitation emails:", error);
+        throw error;
+    }
 };
 
 const sendInterruptionEmail = async (emails, event) => {
-  const logoPath = path.resolve(__dirname, "../../public/logo.png");
+    const logoPath = path.resolve(__dirname, "../../public/logo.png");
 
-  const mailPromises = emails.map((email) => {
-    const mailOptions = {
-      from: "DILG Calendar Event Scheduling",
-      to: email,
-      subject: `Notification for the cancelled/postponed Event: ${event.eventName}`,
-      html: `
+    const mailPromises = emails.map(email => {
+        const mailOptions = {
+            from: "DILG Calendar Event Scheduling",
+            to: email,
+            subject: `Notification for the cancelled/postponed Event: ${event.eventName}`,
+            html: `
         <html>
         <head>
           <style>
@@ -178,36 +178,36 @@ const sendInterruptionEmail = async (emails, event) => {
               <h2>Republic of the Philippines<br>Department of the Interior and Local Government</h2>
             </div>
             <div class="content">
-              <p><strong>John Paul Maniwang</strong> <span style="float:right;">July 2, 2024</span></p>
-              <p><strong>Event No.</strong> 2024-0006</p>
-              <p><strong>TO:</strong> jpskiemaniwang@gmail.com</p>
-              <p><strong>SUBJECT:</strong> Tech4Jobs, July 8, 2024 - 4:36 AM to 3:45 AM</p>
+              <p><strong>${event.createdBy}</strong> <span style="float:right;">${event.createdAt}</span></p>
+              <p><strong>Event No.</strong> ${event.eventId}</p>
+              <p><strong>TO:</strong> ${event.invitedEmails}</p>
+              <p><strong>SUBJECT:</strong> ${event.eventName}, ${event.eventDate} - ${event.eventDateEnd} ${event.eventSchedStart} to ${event.eventSchedEnd}</p>
               <hr>
-              <p>shrtjhzgs drt</p>
+              <p>${event.description}</p>
             </div>
           </div>
         </body>
         </html>
 
       `,
-      attachments: [
-        {
-          filename: "logo.png",
-          path: logoPath,
-          cid: "logo",
-        },
-      ],
-    };
-    return transporter.sendMail(mailOptions);
-  });
+            attachments: [
+                {
+                    filename: "logo.png",
+                    path: logoPath,
+                    cid: "logo"
+                }
+            ]
+        };
+        return transporter.sendMail(mailOptions);
+    });
 
-  try {
-    await Promise.all(mailPromises);
-    console.log("Invitation emails sent successfully.");
-  } catch (error) {
-    console.error("Error sending invitation emails:", error);
-    throw error;
-  }
+    try {
+        await Promise.all(mailPromises);
+        console.log("Invitation emails sent successfully.");
+    } catch (error) {
+        console.error("Error sending invitation emails:", error);
+        throw error;
+    }
 };
 
 module.exports = { sendInvitationEmail, sendInterruptionEmail };
