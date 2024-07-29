@@ -5,11 +5,13 @@ import * as Yup from "yup";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import api from "../api.jsx";
 import Cookies from "js-cookie";
+import "../assets/styles/Loader.css";
 
 const LoginPage = () => {
   const Id = Cookies.get("SESSION_ID");
   const Navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -167,6 +169,11 @@ const LoginPage = () => {
           </div>
         </form>
       </div>
+      {isSubmitting && (
+        <div className="fixed inset-0 flex justify-center items-center z-50 bg-white opacity-50">
+          <div className="loader"></div>
+        </div>
+      )}
     </div>
   );
 };

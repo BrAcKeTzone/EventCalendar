@@ -6,21 +6,17 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import api from "../api";
 import TermsAndConditionsModal from "../components/common/TermsAndConditionsModal";
 import { offices } from "../assets/jsons/Offices.json";
+import "../assets/styles/Loader.css";
 
 const SignupPage = () => {
   const Navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [signupError, setSignupError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [countdown, setCountdown] = useState(300);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
 
   const startCountdown = () => {
     setIsOtpSent(true);
@@ -463,11 +459,11 @@ const SignupPage = () => {
         isOpen={isModalOpen}
         onRequestClose={closeModal}
       />
-       {isSubmitting && (
-                <div className="fixed inset-0 flex justify-center items-center z-50 bg-white opacity-50">
-                    <div className="loader"></div>
-                </div>
-            )}
+      {isSubmitting && (
+        <div className="fixed inset-0 flex justify-center items-center z-50 bg-white opacity-50">
+          <div className="loader"></div>
+        </div>
+      )}
     </div>
   );
 };
