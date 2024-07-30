@@ -1,7 +1,9 @@
-const { DataTypes } = require("sequelize");
-const { Op } = require("sequelize");
+const { DataTypes, Op } = require("sequelize");
+const sequelizePromise = require("../configs/sequelizeConfig");
 
-const sequelize = require("../configs/sequelizeConfig");
+const defineOTPModel = async () => {
+  const sequelize = await sequelizePromise;
+
 
 const OTP = sequelize.define("OTP", {
     email: {
@@ -48,4 +50,7 @@ OTP.removeExpiredEntries = async function () {
     });
 };
 
-module.exports = OTP;
+  return OTP;
+};
+
+module.exports = defineOTPModel();

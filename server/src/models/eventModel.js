@@ -1,5 +1,10 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../configs/sequelizeConfig");
+const sequelizePromise = require("../configs/sequelizeConfig");
+
+const defineEventModel = async () => {
+  const sequelize = await sequelizePromise;
+
+
 
 const Event = sequelize.define("Event", {
   eventId: {
@@ -113,4 +118,7 @@ const Event = sequelize.define("Event", {
   },
 });
 
-module.exports = Event;
+return Event;
+};
+
+module.exports = defineEventModel()

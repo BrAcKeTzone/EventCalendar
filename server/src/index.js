@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const sequelize = require("./configs/sequelizeConfig");
+const sequelizePromise = require("./configs/sequelizeConfig");
 
 const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
@@ -16,9 +16,6 @@ const PORT = process.env.PORT || 3000;
 // CORS configuration
 // const corsOptions = {
 //     origin: [
-//         /https:\/\/mathsaya4kids\.vercel\.app($|\/.*)/,
-//         /https:\/\/mathsaya4kids\.onrender\.com($|\/.*)/,
-//         /https:\/\/www\.mathsaya4kids\.site($|\/.*)/,
 //         /https:\/\/app\.mathsaya4kids\.site($|\/.*)/
 //     ],
 //     methods: "GET,PUT,POST,DELETE",
@@ -37,8 +34,8 @@ app.options("*", cors());
 
 // Logging middleware
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
+    console.log(`${req.method} ${req.url}`);
+    next();
 });
 
 // Body parser middleware
@@ -52,19 +49,23 @@ app.use("/admin", adminRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("Something broke!");
+    console.error(err.stack);
+    res.status(500).send("Something broke!");
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  sequelize
-    .sync({ alter: false }) // Use { force: true } or { alter: true } during development to drop and recreate tables
-    .then(() => {
-      console.log("Connected to the database");
-    })
-    .catch((error) => {
-      console.error("Unable to connect to the database:", error);
-    });
-});
+const startServer = async () => {
+    try {
+        const sequelize = await sequelizePromise;
+        await sequelize.sync({ alter: false }); // Use { force: true } or { alter: true } during development to drop and recreate tables
+        console.log("Connected to the database");
+
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error("Unable to connect to the database:", error);
+    }
+};
+
+startServer();
