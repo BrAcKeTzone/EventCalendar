@@ -1,10 +1,21 @@
-const User = require("../models/userModel");
+const defineUserModel = require("../models/userModel");
 const { checkUserPermission } = require("../middlewares/checkUserPermission");
 require("dotenv").config();
+
+let User;
+
+const initializeModels = async () => {
+    User = await defineUserModel;
+};
+
+initializeModels();
+
 
 async function approveUser(req, res) {
     try {
         const { id } = req.params;
+        
+        await initializeModels();
 
         const user = await User.findByPk(id);
 
@@ -25,6 +36,8 @@ async function approveUser(req, res) {
 async function promoteUser(req, res) {
     try {
         const { id } = req.params;
+        
+        await initializeModels();
 
         const user = await User.findByPk(id);
 
@@ -45,6 +58,8 @@ async function promoteUser(req, res) {
 async function demoteUser(req, res) {
     try {
         const { id } = req.params;
+        
+        await initializeModels();
 
         const user = await User.findByPk(id);
 
@@ -65,6 +80,8 @@ async function demoteUser(req, res) {
 async function declineUser(req, res) {
     try {
         const { id } = req.params;
+        
+        await initializeModels();
 
         const user = await User.findByPk(id);
 
@@ -83,6 +100,7 @@ async function declineUser(req, res) {
 }
 
 async function getAllUsers(req, res) {
+  await initializeModels();
     try {
         const { filter } = req.query;
         let users;

@@ -5,7 +5,6 @@ const defineEventModel = async () => {
   const sequelize = await sequelizePromise;
 
 
-
 const Event = sequelize.define("Event", {
   eventId: {
     type: DataTypes.STRING,

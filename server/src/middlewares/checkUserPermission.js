@@ -1,6 +1,14 @@
-const User = require("../models/userModel");
+const defineUserModel = require("../models/userModel");checkUserPermission.js
+
+let User;
+
+const initializeModels = async () => {
+    User = await defineUserModel;
+};
+initializeModels();
 
 async function checkUserPermission(userId, res) {
+  await initializeModels();
   try {
     if (!userId) {
       return res

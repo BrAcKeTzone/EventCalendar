@@ -76,11 +76,11 @@ const sendInvitationEmail = async (emails, event) => {
               <h2>Republic of the Philippines<br>Department of the Interior and Local Government</h2>
             </div>
             <div class="content">
-              <p><strong>${
+            <p><strong>${
                 event.createdBy
-              }</strong> <span style="float:right;">${
+              }</strong> <span style="float:right;">${dayjs(
         event.createdAt
-      }</span></p>
+      ).format("MMMM D, YYYY")}</span></p>
               <p><strong>Event No.</strong> ${event.eventId}</p>
               <p><strong>TO:</strong> ${event.invitedEmails}</p>
               <p><strong>SUBJECT:</strong> ${event.eventName}, ${dayjs(

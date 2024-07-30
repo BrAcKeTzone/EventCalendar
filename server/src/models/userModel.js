@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../configs/sequelizeConfig");
+
 const sequelizePromise = require("../configs/sequelizeConfig");
 
 const defineUserModel = async () => {
